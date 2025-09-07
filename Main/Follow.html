@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ติดตามสุขภาพด้วย AI + น้ำหนัก</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Sarabun',sans-serif;}
+body{background:#f0f2f5;padding:20px;}
+.container{max-width:800px;margin:0 auto;background:white;padding:20px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+h1{text-align:center;color:#333;margin-bottom:30px;}
+.health-card{background:#e3f2fd;padding:20px;border-radius:8px;margin-bottom:20px;}
+.health-status{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin-bottom:20px;}
+.status-item{background:white;padding:15px;border-radius:8px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+.status-item h3{color:#2196F3;margin-bottom:10px;}
+.input-group{margin-bottom:15px;}
+.input-group label{display:block;margin-bottom:5px;color:#666;}
+.input-group input{width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;}
+.button{background-color:#2196F3;color:white;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;font-size:16px;width:100%;margin:10px 0;}
+.button:hover{opacity:0.9;}
+.health-chart{background:white;padding:20px;border-radius:8px;margin-top:20px;border:1px solid #ddd;}
+#weightExplanation{margin-top:10px;color:#555;font-size:0.95rem;}
+.recommendations{background:#f8f9fa;padding:20px;border-radius:8px;margin-top:20px;}
+.recommendations h2{color:#333;margin-bottom:15px;}
+#aiRecommendationsWrapper{margin-top:15px;max-height:200px;overflow-y:auto;}
+#aiRecommendationsWrapper ul{padding-left:20px;}
+#aiRecommendationsWrapper li{margin:10px 0;color:#666;}
+.alert{background-color:#ffebee;color:#c62828;padding:10px;border-radius:4px;margin-top:10px;display:none;}
+.success{background-color:#e8f5e9;color:#2e7d32;padding:10px;border-radius:4px;margin-top:10px;display:none;}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>ติดตามสุขภาพด้วย AI + น้ำหนัก</h1>
+
+<div class="health-card">
+  <div class="health-status">
+    <div class="status-item">
+      <h3>สุขภาพโดยรวม</h3>
+      <p id="overallHealth">ดี</p>
+    </div>
+    <div class="status-item">
+      <h3>คะแนนความเสี่ยง</h3>
+      <p id="riskScore">ต่ำ</p>
+    </div>
+  </div>
+
+  <div class="input-group">
+    <label>ความดันโลหิต (mmHg)</label>
+    <input type="text" id="bloodPressure" placeholder="120/80">
+  </div>
+  <div class="input-group">
+    <label>อัตราการเต้นหัวใจ (ครั้ง/นาที)</label>
+    <input type="number" id="heartRate" placeholder="72">
+  </div>
+  <div class="input-group">
+    <label>ระดับน้ำตาลในเลือด (mg/dL)</label>
+    <input type="number" id="bloodSugar" placeholder="เช่น 90">
+  </div>
+  <div class="input-group">
+    <label>น้ำหนัก (kg)</label>
+    <input type="number" id="weight" placeholder="เช่น 70.5">
+  </div>
+  <div class="input-group">
+    <label>ส่วนสูง (cm)</label>
+    <input type="number" id="height" placeholder="เช่น 170">
+  </div>
+
+  <button class="button" onclick="updateHealth()">อัพเดทข้อมูล</button>
+  <div id="alert" class="alert"></div>
+  <div id="success" class="success"></div>
+</div>
+
+<div class="health-chart">
+<h2>กราฟสุขภาพ + น้ำหนัก</h2>
+<canvas id="healthTrendChart"></canvas>
+<div id="weightExplanation">
+  **น้ำหนักตามเกณฑ์ไทย** <br>
+  - ต่ำกว่าเกณฑ์ = ผอม  
+  - 45–59 = น้ำหนักปกติ  
+  - 60–69 = ท้วมเล็กน้อย  
+  - 70–79 = ท้วม  
+  - ≥80 = อ้วน
+</div>
+<button class="button" style="background-color:#E53935" onclick="resetHistory()">ล้างประวัติสุขภาพ</button>
+<button class="button" style="background-color:#1976D2" onclick="downloadChart()">ดาวน์โหลดกราฟ (PNG)</button>
+</div>
+
+<div class="recommendations">
+<h2>คำแนะนำจาก AI</h2>
+<div id="aiRecommendationsWrapper">
+<ul id="aiRecommendations">
+  <li>ออกกำลังกายอย่างสม่ำเสมอ อย่างน้อยวันละ 30 นาที</li>
+  <li>ดื่มน้ำให้เพียงพอ อย่างน้อยวันละ 8 แก้ว</li>
+  <li>พักผ่อนให้เพียงพอ ควรนอนวันละ 7-8 ชั่วโมง</li>
+  <li>รับประทานอาหารให้ครบ 5 หมู่</li>
+</ul>
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let healthHistory = JSON.parse(localStorage.getItem("healthHistory"))||[];
+
+const ctx = document.getElementById('healthTrendChart').getContext('2d');
+
+const gradientHealth = ctx.createLinearGradient(0,0,0,300);
+gradientHealth.addColorStop(0,'rgba(76,175,80,0.4)');
+gradientHealth.addColorStop(1,'rgba(76,175,80,0.05)');
+
+const gradientWeight = ctx.createLinearGradient(0,0,0,300);
+gradientWeight.addColorStop(0,'rgba(25,118,210,0.4)');
+gradientWeight.addColorStop(1,'rgba(25,118,210,0.05)');
+
+const healthChart = new Chart(ctx,{
+  type:'line',
+  data:{
+    labels: healthHistory.map(h=>h.date)||[],
+    datasets:[
+      {
+        label:'คะแนนสุขภาพรวม',
+        data: healthHistory.map(h=>h.score)||[],
+        borderColor:'#4CAF50',
+        backgroundColor: gradientHealth,
+        pointBackgroundColor:'#388E3C',
+        fill:true,
+        yAxisID:'y1',
+        tension:0.3
+      },
+      {
+        label:'น้ำหนัก (kg)',
+        data: healthHistory.map(h=>h.weight)||[],
+        borderColor:'#1976D2',
+        backgroundColor: gradientWeight,
+        pointBackgroundColor:'#0D47A1',
+        fill:true,
+        yAxisID:'y2',
+        tension:0.3
+      }
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{title:{display:true,text:'แนวโน้มสุขภาพ + น้ำหนัก'}},
+    scales:{
+      y1:{type:'linear',position:'left',min:0,max:100,title:{display:true,text:'คะแนนสุขภาพ'}},
+      y2:{type:'linear',position:'right',min:30,max:100,title:{display:true,text:'น้ำหนัก (kg)'}}
+    }
+  }
+});
+
+function calculateOverallHealth(bp,hr,weight,sugar){
+  let score=100;
+  const bpParts=bp.split('/');
+  if(bpParts.length===2){
+    const sys=parseInt(bpParts[0]);
+    const dia=parseInt(bpParts[1]);
+    if(sys>140||dia>90) score-=20;
+  }
+  if(hr>100||hr<60) score-=20;
+  if(sugar>126||sugar<70) score-=20;
+  if(weight<45||weight>80) score-=20;
+  return Math.max(0,score);
+}
+
+function getWeightStatus(weight){
+  if(weight<45) return 'ผอม';
+  if(weight<=59) return 'น้ำหนักปกติ';
+  if(weight<=69) return 'ท้วมเล็กน้อย';
+  if(weight<=79) return 'ท้วม';
+  return 'อ้วน';
+}
+
+function getWeightColor(weight){
+  if(weight<45) return '#2196F3';
+  if(weight<=59) return '#4CAF50';
+  if(weight<=69) return '#FFEB3B';
+  if(weight<=79) return '#FF9800';
+  return '#E53935';
+}
+
+function updateHealth(){
+  const bp=document.getElementById('bloodPressure').value;
+  const hr=parseInt(document.getElementById('heartRate').value);
+  const sugar=parseInt(document.getElementById('bloodSugar').value);
+  const weight=parseFloat(document.getElementById('weight').value);
+  const height=parseFloat(document.getElementById('height').value);
+  const alertBox=document.getElementById('alert');
+  const successBox=document.getElementById('success');
+
+  if(!bp||!hr||!sugar||!weight||!height){
+    alertBox.style.display='block';
+    successBox.style.display='none';
+    alertBox.textContent='กรุณากรอกข้อมูลให้ครบถ้วน';
+    return;
+  }
+
+  const score=calculateOverallHealth(bp,hr,weight,sugar);
+  const today=new Date().toLocaleDateString("th-TH");
+
+  setTimeout(()=>{
+    const overallHealth=document.getElementById('overallHealth');
+    const riskScore=document.getElementById('riskScore');
+
+    let status='ดี';
+    if(score<60){
+      overallHealth.textContent='เสี่ยง';
+      riskScore.textContent='สูง';
+      status='เสี่ยง';
+      healthChart.data.datasets[0].borderColor='#E53935';
+      healthChart.data.datasets[0].backgroundColor='rgba(229,57,53,0.2)';
+    }else if(score<80){
+      overallHealth.textContent='ปานกลาง';
+      riskScore.textContent='ปานกลาง';
+      status='ปานกลาง';
+      healthChart.data.datasets[0].borderColor='#FDD835';
+      healthChart.data.datasets[0].backgroundColor='rgba(253,216,53,0.2)';
+    }else{
+      overallHealth.textContent='ดี';
+      riskScore.textContent='ต่ำ';
+      status='ดี';
+      healthChart.data.datasets[0].borderColor='#4CAF50';
+      healthChart.data.datasets[0].backgroundColor='rgba(76,175,80,0.2)';
+    }
+
+    healthHistory.push({date:today,score:score,weight:weight});
+    localStorage.setItem("healthHistory",JSON.stringify(healthHistory));
+    healthChart.data.labels=healthHistory.map(h=>h.date);
+    healthChart.data.datasets[0].data=healthHistory.map(h=>h.score);
+    healthChart.data.datasets[1].data=healthHistory.map(h=>h.weight);
+    healthChart.data.datasets[1].borderColor=healthHistory.map(h=>getWeightColor(h.weight));
+    healthChart.update();
+
+    updateRecommendations(status,getWeightStatus(weight));
+
+    alertBox.style.display='none';
+    successBox.style.display='block';
+    successBox.textContent='อัพเดทข้อมูลสำเร็จ';
+  },500);
+}
+
+function updateRecommendations(status,weightStatus){
+  const recommendations=document.getElementById('aiRecommendations');
+  recommendations.innerHTML='';
+  let items=[];
+  if(status==='เสี่ยง'){
+    items=['ควรพักผ่อนให้เพียงพอ','หลีกเลี่ยงความเครียด','ควรพบแพทย์เพื่อตรวจสอบอาการ','ลดการดื่มคาเฟอีน'];
+  }else if(status==='ปานกลาง'){
+    items=['ออกกำลังกายสม่ำเสมอ','ตรวจสอบอาหารและน้ำตาล','พักผ่อนเพียงพอ','ตรวจสุขภาพประจำปี'];
+  }else{
+    items=['รักษาสุขภาพให้อยู่ในเกณฑ์ดี','ออกกำลังกายต่อเนื่อง','รับประทานอาหารครบ 5 หมู่','ดื่มน้ำให้เพียงพอ'];
+  }
+  items.unshift('สถานะน้ำหนัก: '+weightStatus);
+  items.forEach(i=>{
+    const li=document.createElement('li');
+    li.textContent=i;
+    recommendations.appendChild(li);
+  });
+}
+
+function resetHistory(){
+  if(confirm("คุณต้องการล้างประวัติสุขภาพทั้งหมดหรือไม่?")){
+    healthHistory=[];
+    localStorage.removeItem("healthHistory");
+    healthChart.data.labels=[];
+    healthChart.data.datasets[0].data=[];
+    healthChart.data.datasets[1].data=[];
+    healthChart.update();
+    alert("ล้างประวัติเรียบร้อยแล้ว");
+  }
+}
+
+function downloadChart(){
+  const link=document.createElement('a');
+  link.href=healthChart.toBase64Image();
+  link.download='health_trend_weight.png';
+  link.click();
+}
+</script>
+</body>
+</html>
+
+
+

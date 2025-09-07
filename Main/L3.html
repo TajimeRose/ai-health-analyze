@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI เพื่อการวินิจฉัยทางการแพทย์</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .upload-section {
+            border: 2px dashed #ccc;
+            padding: 40px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .upload-section:hover {
+            border-color: #2196F3;
+        }
+
+        .button {
+            background-color: #2196F3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .guidelines {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .guidelines h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .guidelines ul {
+            padding-left: 20px;
+        }
+
+        .guidelines li {
+            margin: 10px 0;
+            color: #666;
+        }
+
+        .result {
+            padding: 20px;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .disclaimer {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        #preview {
+            max-width: 300px;
+            margin: 10px auto;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>การวินิจฉัยด้วย AI</h1>
+       
+        <div class="upload-section" onclick="document.getElementById('fileInput').click()">
+            <p>คลิกเพื่ออัพโหลดภาพ</p>
+            <input type="file" id="fileInput" accept="image/*" style="display: none">
+            <img id="preview" src="" alt="ภาพตัวอย่าง">
+        </div>
+
+        <button id="diagnoseButton" class="button" disabled>เริ่มการวินิจฉัย</button>
+
+        <div class="loading" id="loading">
+            กำลังวินิจฉัย...
+        </div>
+
+        <div class="result" id="result">
+            <p id="diagnosisResult"></p>
+        </div>
+<!--140-150-->
+        <div class="guidelines">
+            <h2>คำแนะนำการใช้งาน</h2>
+            <ul>
+                <li>อัพโหลดภาพที่ชัดเจนและมีความละเอียดสูง</li>
+                <li>ถ่ายภาพในที่มีแสงสว่างเพียงพอ</li>
+                <li>หลีกเลี่ยงภาพที่มีเงาหรือแสงสะท้อน</li>
+                <li>ถ่ายภาพจากมุมที่เหมาะสม</li>
+            </ul>
+        </div>
+
+        <p class="disclaimer">
+            ⚠️ ระบบนี้ใช้สำหรับการคัดกรองเบื้องต้นเท่านั้น ไม่สามารถใช้แทนการวินิจฉัยโดยแพทย์ได้
+        </p>
+    </div>
+
+    <script src="app.js" type ="module">
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const diagnoseButton = document.getElementById('diagnoseButton');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const diagnosisResult = document.getElementById('diagnosisResult');
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    diagnoseButton.disabled = false;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        diagnoseButton.addEventListener('click', function() {
+            // จำลองการวินิจฉัย
+            loading.style.display = 'block';
+            diagnoseButton.disabled = true;
+            result.style.display = 'none';
+
+            setTimeout(() => {
+                loading.style.display = 'none';
+                result.style.display = 'block';
+                diagnosisResult.textContent = "ผลการวินิจฉัยเบื้องต้น: กรุณาปรึกษาแพทย์เพื่อการวินิจฉัยที่แม่นยำ";
+                diagnoseButton.disabled = false;
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

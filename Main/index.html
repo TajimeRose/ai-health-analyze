@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Health Analyze</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .gradient { background: linear-gradient(90deg, #e3f2fd 0%, #bbdefb 100%); }
+    .icon-circle { width: 3rem; height: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .service-card { transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
+    .service-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); }
+  </style>
+</head>
+<body class="min-h-screen gradient">
+
+  <!-- ฟอร์มเข้าสู่ระบบ / สมัครสมาชิก -->
+  <div id="authSection" class="flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+      <h2 id="authTitle" class="text-2xl font-bold mb-6 text-center">เข้าสู่ระบบ</h2>
+      <form id="authForm" class="space-y-4">
+        <input id="name" type="text" placeholder="ชื่อ" class="w-full p-3 border rounded hidden">
+        <input id="email" type="email" placeholder="อีเมล" class="w-full p-3 border rounded" required>
+        <input id="password" type="password" placeholder="รหัสผ่าน" class="w-full p-3 border rounded" required>
+        <button class="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700">ยืนยัน</button>
+      </form>
+      <p class="mt-4 text-center">
+        <span id="toggleText">ยังไม่มีบัญชี?</span>
+        <button id="toggleBtn" class="text-blue-600">สมัครสมาชิก</button>
+      </p>
+    </div>
+  </div>
+
+  <!-- เนื้อหาเว็บไซต์ -->
+  <div id="mainSection" class="hidden">
+    <header class="container mx-auto px-4 py-16 text-center">
+      <h1 class="text-5xl font-bold text-gray-900 mb-6">AI เพื่อการแพทย์แห่งอนาคต</h1>
+      <p id="welcomeMessage" class="text-xl text-blue-700 font-semibold mb-6"></p>
+      <p class="text-xl text-gray-600 mb-8">ยกระดับการดูแลสุขภาพด้วยเทคโนโลยี AI ที่ทันสมัย</p>
+      <button id="startButton" class="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700">
+        เริ่มต้นใช้งาน
+      </button>
+      <button id="logoutBtn" class="ml-4 bg-red-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-red-700">
+        ออกจากระบบ
+      </button>
+    </header>
+
+    <section class="container mx-auto px-4 py-16">
+      <h2 class="text-3xl font-bold text-center mb-12">บริการของเรา</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="p-6 bg-white rounded-xl shadow-lg service-card">
+          <div onclick="window.location.href='L3.html'"  class="icon-circle bg-blue-500 mb-4 mx-auto"><img src="/ai-health-analyze/IMG/วินิจฉัย.png" alt="Diagnosis"></div>
+          <h3 class="text-xl font-semibold mb-2 text-center">การวินิจฉัยด้วย AI</h3>
+          <p class="text-gray-600 text-center">ใช้ปัญญาประดิษฐ์ช่วยวินิจฉัยโรคเบื้องต้นได้อย่างแม่นยำ</p>
+        </div>
+        <div class="p-6 bg-white rounded-xl shadow-lg service-card">
+          <div onclick="window.location.href='Follow.html'" class="icon-circle bg-blue-500 mb-4 mx-auto"><img src="/ai-health-analyze/IMG/ติดตาม.webp" alt="Monitoring"></div>
+          <h3 class="text-xl font-semibold mb-2 text-center">ติดตามสุขภาพ</h3>
+          <p class="text-gray-600 text-center">ระบบติดตามสุขภาพอัจฉริยะตลอด 24 ชั่วโมง</p>
+        </div>
+        <div class="p-6 bg-white rounded-xl shadow-lg service-card">
+          <div onclick="window.location.href='L1.html'" #80FF00 class="icon-circle bg-blue-500 mb-4 mx-auto"><img src="/ai-health-analyze/IMG/วิเคา.png" alt="Analysis"></div>
+          <h3 class="text-xl font-semibold mb-2 text-center">วิเคราะห์ผลตรวจ</h3>
+          <p class="text-gray-600 text-center">วิเคราะห์ผลตรวจสุขภาพด้วยระบบ AI ทันสมัย</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="bg-gray-900 text-gray-400 py-12">
+      <div class="container mx-auto px-4 text-center">
+        <p>© 2025 AI Medical. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Firebase & Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    // 🔥 config Firebase ของคุณเอง
+    const firebaseConfig = {
+    apiKey: "AIzaSyDvos1LV2WH7UqRLDXeeEeQybfDjUfeyGU",
+    authDomain: "ai-h-b7e5c.firebaseapp.com",
+    projectId: "ai-h-b7e5c",
+    storageBucket: "ai-h-b7e5c.firebasestorage.app",
+    messagingSenderId: "891804309804",
+    appId: "1:891804309804:web:e58ca2ff087c058df4f489",
+    measurementId: "G-GD96F5TBFC"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // อ้างอิง element
+    const authSection = document.getElementById("authSection");
+    const mainSection = document.getElementById("mainSection");
+    const authForm = document.getElementById("authForm");
+    const authTitle = document.getElementById("authTitle");
+    const toggleBtn = document.getElementById("toggleBtn");
+    const toggleText = document.getElementById("toggleText");
+    const nameInput = document.getElementById("name");
+    const welcomeMessage = document.getElementById("welcomeMessage");
+
+    let isSignup = false;
+
+    // toggle signup / login
+    toggleBtn.addEventListener("click", () => {
+      isSignup = !isSignup;
+      if (isSignup) {
+        authTitle.textContent = "สมัครสมาชิก";
+        nameInput.classList.remove("hidden");
+        toggleText.textContent = "มีบัญชีแล้ว?";
+        toggleBtn.textContent = "เข้าสู่ระบบ";
+      } else {
+        authTitle.textContent = "เข้าสู่ระบบ";
+        nameInput.classList.add("hidden");
+        toggleText.textContent = "ยังไม่มีบัญชี?";
+        toggleBtn.textContent = "สมัครสมาชิก";
+      }
+    });
+
+    // submit form
+    authForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      try {
+        if (isSignup) {
+          const name = nameInput.value;
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          await setDoc(doc(db, "users", userCredential.user.uid), {
+            name: name,
+            email: email,
+            createdAt: new Date().toISOString()
+          });
+          alert("สมัครสมาชิกสำเร็จ 🎉");
+        } else {
+          await signInWithEmailAndPassword(auth, email, password);
+          alert("เข้าสู่ระบบสำเร็จ ✅");
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    // ตรวจสอบการ login
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        let name = user.email;
+        if (snap.exists()) {
+          name = snap.data().name;
+        }
+        welcomeMessage.textContent = `ยินดีต้อนรับ คุณ ${name} 🎉`;
+        authSection.classList.add("hidden");
+        mainSection.classList.remove("hidden");
+      } else {
+        authSection.classList.remove("hidden");
+        mainSection.classList.add("hidden");
+      }
+    });
+
+    // logout
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      alert("ออกจากระบบแล้ว");
+    });
+  </script>
+</body>
+</html>

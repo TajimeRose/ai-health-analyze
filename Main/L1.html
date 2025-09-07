@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>วิเคราะห์สุขภาพด้วย AI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Sarabun',sans-serif;}
+body{background: linear-gradient(180deg,#e6f3ff 0%,#ffffff 100%);min-height:100vh;padding:2rem;}
+.container{max-width:1000px;margin:0 auto;padding:2rem;}
+.header{text-align:center;margin-bottom:2rem;}
+.header h1{font-size:2rem;color:#1a1a1a;margin-bottom:0.5rem;}
+.header p{color:#555;}
+.card{background:white;padding:2rem;border-radius:15px;box-shadow:0 4px 10px rgba(0,0,0,0.1);margin-bottom:2rem;}
+.form-group{margin-bottom:1.5rem;}
+label{display:block;margin-bottom:0.5rem;color:#333;font-weight:500;}
+input,textarea,button{width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;}
+button{background:#1a73e8;color:white;border:none;cursor:pointer;transition:0.3s;}
+button:hover{background:#1557b0;}
+.symptom-list{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.5rem;}
+.symptom-tag{background:#e3f2fd;padding:0.5rem 1rem;border-radius:20px;font-size:0.9rem;cursor:pointer;transition:0.3s;}
+.symptom-tag.selected{background:#1a73e8;color:white;}
+.result-item{margin-bottom:1rem;padding:1rem;border-radius:10px;background:#f8f9fa;}
+.risk-low{background:#c8e6c9;color:#2e7d32;padding:0.3rem 0.8rem;border-radius:10px;}
+.risk-medium{background:#fff3e0;color:#f57c00;padding:0.3rem 0.8rem;border-radius:10px;}
+.risk-high{background:#ffebee;color:#c62828;padding:0.3rem 0.8rem;border-radius:10px;}
+#loadingIndicator{display:none;text-align:center;padding:1rem;}
+#backBtn{
+    display:none; /* เริ่มต้นซ่อน */
+    margin-top:1rem;
+    background:#f57c00;
+    padding:0.6rem 1.2rem;
+    border:none;
+    border-radius:8px;
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
+}
+#backBtn:hover{ background:#d95c00; }
+</style>
+</head>
+<body>
+    
+    <!-- ปุ่มย้อนกลับไปหน้าก่อนหน้า -->
+<button id="backToPageBtn" style="margin-bottom:1rem; padding:0.6rem 1.2rem; border:none; border-radius:8px; background:#4caf50; color:white; cursor:pointer; transition:0.3s;">กลับไปหน้าก่อนหน้า</button>
+
+<div class="container">
+    <header class="header">
+        <h1>วิเคราะห์สุขภาพด้วย AI</h1>
+        <p>กรอกข้อมูลสุขภาพของคุณเพื่อวิเคราะห์อาการ</p>
+    </header>
+
+    <div class="card">
+        <h2>ข้อมูลสุขภาพ</h2>
+        <form id="healthForm">
+            <div class="form-group">
+                <label>ความดันโลหิต (mmHg)</label>
+                <input type="text" id="bloodPressure" placeholder="120/80" required>
+            </div>
+            <div class="form-group">
+                <label>อัตราการเต้นหัวใจ (bpm)</label>
+                <input type="number" id="heartRate" placeholder="72" required>
+            </div>
+            <div class="form-group">
+                <label>เลือกอาการที่พบ</label>
+                <div class="symptom-list" id="symptomList">
+                    <div class="symptom-tag">ไข้</div>
+                    <div class="symptom-tag">ไอ</div>
+                    <div class="symptom-tag">เจ็บคอ</div>
+                    <div class="symptom-tag">น้ำมูกไหล</div>
+                    <div class="symptom-tag">ปวดศีรษะ</div>
+                    <div class="symptom-tag">เวียนศีรษะ</div>
+                    <div class="symptom-tag">คลื่นไส้</div>
+                    <div class="symptom-tag">อ่อนเพลีย</div>
+                    <div class="symptom-tag">หายใจลำบาก</div>
+                    <div class="symptom-tag">ปวดท้อง</div>
+                    <div class="symptom-tag">ผื่น</div>
+                    <div class="symptom-tag">คัน</div>
+                    <div class="symptom-tag">หนาวสั่น</div>
+                    <div class="symptom-tag">ถ่ายเหลว</div>
+                    <div class="symptom-tag">เจ็บหน้าอก</div>
+                    <div class="symptom-tag">ปวดกล้ามเนื้อ</div>
+                    <div class="symptom-tag">เหนื่อยง่าย</div>
+                    <div class="symptom-tag">ท้องเสีย</div>
+                    <div class="symptom-tag">คลื่นไส้อาเจียน</div>
+                    <div class="symptom-tag">ง่วงนอน</div>
+                    <div class="symptom-tag">ใจสั่น</div>
+                    <div class="symptom-tag">บวม</div>
+                    <div class="symptom-tag">แดง</div>
+                    <div class="symptom-tag">ระคายเคือง</div>
+                    <div class="symptom-tag">จุกเสียดหน้าอก</div>
+                    <div class="symptom-tag">เรอ</div>
+                    <div class="symptom-tag">ไวต่อแสง</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>อาการเพิ่มเติม</label>
+                <textarea id="additionalSymptoms" rows="3" placeholder="ระบุอาการอื่นๆ"></textarea>
+            </div>
+            <button type="submit">วิเคราะห์ผล</button>
+        </form>
+        <div id="loadingIndicator">กำลังวิเคราะห์...</div>
+        <div id="analysisResults"></div> 
+        
+        <div id="analysisResults"></div>
+<button id="backBtn">ย้อนกลับ</button
+>
+        <h3>ประวัติย้อนหลัง</h3>
+        <div id="historyList"></div>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+import { getFirestore, collection, addDoc, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+// Firebase Config
+const firebaseConfig = {
+    apiKey: "AIzaSyDvos1LV2WH7UqRLDXeeEeQybfDjUfeyGU",
+    authDomain: "ai-h-b7e5c.firebaseapp.com",
+    projectId: "ai-h-b7e5c",
+    storageBucket: "ai-h-b7e5c.firebasestorage.app",
+    messagingSenderId: "891804309804",
+    appId: "1:891804309804:web:e58ca2ff087c058df4f489",
+    measurementId: "G-GD96F5TBFC"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Elements
+const symptomTags = document.querySelectorAll('.symptom-tag');
+const healthForm = document.getElementById('healthForm');
+const analysisResults = document.getElementById('analysisResults');
+const loadingIndicator = document.getElementById('loadingIndicator');
+const historyList = document.getElementById('historyList');
+
+// Toggle symptom
+symptomTags.forEach(tag => tag.addEventListener('click', () => tag.classList.toggle('selected')));
+
+// Disease DB
+const diseaseDB = [
+    { disease:"ไข้หวัด/ติดเชื้อทางเดินหายใจ", symptoms:["ไข้","ไอ","เจ็บคอ","น้ำมูกไหล"] },
+    { disease:"ความเครียด/ความดันโลหิต", symptoms:["ปวดศีรษะ","เวียนศีรษะ","ใจสั่น"] },
+    { disease:"อาหารไม่ย่อย", symptoms:["คลื่นไส้","ปวดท้อง","เรอ"] },
+    { disease:"ภูมิแพ้ผิวหนัง", symptoms:["ผื่น","คัน","แดง","ระคายเคือง"] },
+    { disease:"ท้องเสีย/อาหารเป็นพิษ", symptoms:["ถ่ายเหลว","คลื่นไส้อาเจียน","ท้องเสีย"] },
+    { disease:"เหนื่อยง่าย/อ่อนเพลีย", symptoms:["อ่อนเพลีย","ง่วงนอน","เหนื่อยง่าย"] },
+    { disease:"ไข้สูง/หนาวสั่น", symptoms:["ไข้","หนาวสั่น"] }
+];
+
+// Analyze
+function analyzeSymptoms(selectedSymptoms, additionalSymptoms){
+    let matchedDiseases=[];
+    for(const item of diseaseDB){
+        const matchCount = item.symptoms.filter(s => selectedSymptoms.includes(s)).length;
+        const matchPercent = (matchCount / item.symptoms.length) * 100;
+        if(matchPercent>=50) matchedDiseases.push({disease:item.disease,matchPercent});
+    }
+    matchedDiseases.sort((a,b)=>b.matchPercent - a.matchPercent);
+    let risk = matchedDiseases.length>0 ? matchedDiseases[0].disease : "ไม่สามารถระบุได้";
+    let advice = matchedDiseases.length>0
+        ? "คำแนะนำเบื้องต้น: พักผ่อน ดื่มน้ำมากๆ และปรึกษาแพทย์หากอาการรุนแรง"
+        : "ควรปรึกษาแพทย์เพื่อการวินิจฉัยที่ชัดเจน";
+    if(additionalSymptoms) advice+=" | อาการเพิ่มเติม: "+additionalSymptoms;
+    return {risk,advice,matchedDiseases};
+}
+
+// Submit form
+healthForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+
+    const bloodPressure = document.getElementById('bloodPressure').value.trim();
+    const heartRate = document.getElementById('heartRate').value.trim();
+    const selectedSymptoms = Array.from(document.querySelectorAll('.symptom-tag.selected')).map(t=>t.textContent);
+    const additionalSymptoms = document.getElementById('additionalSymptoms').value.trim();
+
+    if(!bloodPressure || !heartRate || selectedSymptoms.length===0){
+        alert("กรุณากรอกความดัน, อัตราการเต้นหัวใจ และเลือกอาการ");
+        return;
+    }
+
+    loadingIndicator.style.display='block';
+    analysisResults.innerHTML='';
+
+    const {risk, advice, matchedDiseases} = analyzeSymptoms(selectedSymptoms, additionalSymptoms);
+
+    const [systolic, diastolic] = bloodPressure.split('/').map(Number);
+    let bpClass='risk-low', bpRisk='ปกติ', bpMsg='อยู่ในเกณฑ์ปกติ';
+    if(systolic>=140 || diastolic>=90){ bpClass='risk-high'; bpRisk='สูง'; bpMsg='ควรพบแพทย์';}
+    else if(systolic>=120 || diastolic>=80){ bpClass='risk-medium'; bpRisk='ค่อนข้างสูง'; bpMsg='เฝ้าระวัง';}
+
+    const hr = Number(heartRate);
+    let hrClass='risk-low', hrRisk='ปกติ', hrMsg='อยู่ในเกณฑ์ปกติ';
+    if(hr>100){ hrClass='risk-medium'; hrRisk='สูง'; hrMsg='พักผ่อน';}
+    else if(hr<60){ hrClass='risk-medium'; hrRisk='ต่ำ'; hrMsg='ปรึกษาแพทย์ถ้ามีอ่อนเพลีย';}
+
+    let resultHTML = `
+        <div class="result-item"><h3>ความดัน: ${bloodPressure} mmHg <span class="${bpClass}">${bpRisk}</span></h3><p>${bpMsg}</p></div>
+        <div class="result-item"><h3>อัตราการเต้นหัวใจ: ${hr} bpm <span class="${hrClass}">${hrRisk}</span></h3><p>${hrMsg}</p></div>
+        <div class="result-item"><h3>ผลวิเคราะห์อาการเบื้องต้น: ${risk}</h3><p>${advice}</p></div>
+    `;
+
+    if(matchedDiseases.length>1){
+        resultHTML += `<div class="result-item"><h4>โรคที่ตรงรอง:</h4><ul>`;
+        matchedDiseases.slice(1).forEach(d=>{
+            resultHTML += `<li>${d.disease} (ตรง ${Math.round(d.matchPercent)}%)</li>`;
+        });
+        resultHTML += `</ul></div>`;
+    }
+    analysisResults.innerHTML = resultHTML;
+    loadingIndicator.style.display='none';
+
+    // บันทึกลง Firebase
+    try {
+        // ใช้ uid สมมติ (ปรับตามระบบเว็บหลักของคุณ)
+        const uid = "defaultUser"; 
+        await addDoc(collection(db,"healthRecords"),{
+            uid,
+            timestamp: new Date(),
+            bloodPressure,
+            heartRate,
+            symptoms: selectedSymptoms,
+            additionalSymptoms,
+            disease: risk,
+            advice
+        });
+        loadHistory();
+    } catch(error){
+        alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล: "+error.message);
+    }
+});
+
+// โหลดประวัติย้อนหลัง
+async function loadHistory(){
+    historyList.innerHTML='';
+    try{
+        const q = query(collection(db,"healthRecords"), orderBy("timestamp","desc"));
+        const querySnapshot = await getDocs(q);
+        if(querySnapshot.empty){
+            historyList.innerHTML="<p>ยังไม่มีประวัติย้อนหลัง</p>";
+            return;
+        }
+        querySnapshot.forEach(doc=>{
+            const data = doc.data();
+            const time = data.timestamp.toDate ? data.timestamp.toDate().toLocaleString() : new Date(data.timestamp).toLocaleString();
+            const div = document.createElement('div');
+            div.className = 'result-item';
+            div.innerHTML = `<p><strong>${time}</strong> | โรค: ${data.disease} | อาการ: ${data.symptoms.join(', ')} ${data.additionalSymptoms ? "| "+data.additionalSymptoms : ""}</p>`;
+            historyList.appendChild(div);
+        });
+    } catch(e){
+        console.error(e);
+        historyList.innerHTML="<p>ไม่สามารถโหลดประวัติย้อนหลังได้</p>";
+    }
+}
+
+// โหลดประวัติเมื่อเข้าเว็บ
+loadHistory();
+const backBtn = document.getElementById('backBtn');
+
+// แสดงปุ่มเมื่อวิเคราะห์เสร็จ
+healthForm.addEventListener('submit', async (e)=>{
+    // โค้ด analyzeSymptoms เดิมจะอยู่ตรงนี้...
+    
+    // แสดงปุ่มย้อนกลับ
+    backBtn.style.display = 'inline-block';
+});
+
+// เมื่อกดปุ่มย้อนกลับ
+backBtn.addEventListener('click', ()=>{
+    window.scrollTo({top:0, behavior:'smooth'}); // เลื่อนกลับฟอร์มด้านบน
+    backBtn.style.display='none'; // ซ่อนปุ่มอีกครั้ง
+});
+
+const backToPageBtn = document.getElementById('backToPageBtn');
+
+backToPageBtn.addEventListener('click', ()=>{
+    history.back(); // ย้อนกลับไปหน้าก่อนหน้าใน browser จริงๆ
+});
+
+</script>
+</body>
+</html>

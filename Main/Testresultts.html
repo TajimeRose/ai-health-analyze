@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์สุขภาพด้วย AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(180deg, #e6f3ff 0%, #ffffff 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #1a1a1a;
+            margin-bottom: 1rem;
+        }
+
+        .analysis-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .analysis-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-card, .result-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .symptom-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .symptom-tag {
+            background: #e3f2fd;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .symptom-tag.selected {
+            background: #1a73e8;
+            color: white;
+        }
+
+        .analyze-btn {
+            background: #1a73e8;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+            transition: background 0.3s;
+        }
+
+        .analyze-btn:hover {
+            background: #1557b0;
+        }
+
+        .result-section {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .result-item {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result-item h3 {
+            color: #1a73e8;
+            margin-bottom: 0.5rem;
+        }
+
+        .risk-level {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .risk-low {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .risk-medium {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .risk-high {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .vital-signs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .vital-sign {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .vital-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+
+        #loadingIndicator {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>วิเคราะห์สุขภาพด้วยระบบ AI</h1>
+            <p>กรุณากรอกข้อมูลให้ครบถ้วนเพื่อการวิเคราะห์ที่แม่นยำ</p>
+        </header>
+
+        <div class="analysis-section">
+            <div class="input-card">
+                <h2>ข้อมูลสุขภาพ</h2>
+                <form id="healthForm" onsubmit="return analyzeHealth(event)">
+                    <div class="vital-signs">
+                        <div class="vital-sign">
+                            <label>ความดันโลหิต (mmHg)</label>
+                            <input type="text" id="bloodPressure" placeholder="120/80" required>
+                        </div>
+                        <div class="vital-sign">
+                            <label>อัตราการเต้นหัวใจ</label>
+                            <input type="number" id="heartRate" placeholder="72" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>อาการที่พบ</label>
+                        <div class="symptom-list">
+                            <div class="symptom-tag" onclick="toggleSymptom(this)">ปวดศีรษะ</div>
+                            <div class="symptom-tag" onclick="toggleSymptom(this)">เวียนศีรษะ</div>
+                            <div class="symptom-tag" onclick="toggleSymptom(this)">คลื่นไส้</div>
+                            <div class="symptom-tag" onclick="toggleSymptom(this)">อ่อนเพลีย</div>
+                            <div class="symptom-tag" onclick="toggleSymptom(this)">หายใจลำบาก</div>
+                            <div class="symptom-tag" onclick="toggleSymptom(this)">ไข้</div>
+                            <div class="symptom-tag" onclick="toggleSymptom(this)">ไอ</div>
+                            <div class="symptom-tag" onclick="toggleSymptom(this)">ปวดท้อง</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>อาการเพิ่มเติม</label>
+                        <textarea id="additionalSymptoms" rows="3" placeholder="กรุณาระบุอาการอื่นๆ ที่พบ"></textarea>
+                    </div>
+
+                    <button type="submit" class="analyze-btn">วิเคราะห์ผล</button>
+                </form>
+            </div>
+
+            <div class="result-card">
+                <h2>ผลการวิเคราะห์</h2>
+                <div id="loadingIndicator">
+                    <p class="pulse">กำลังวิเคราะห์ข้อมูล...</p>
+                </div>
+                <div id="analysisResults">
+                    <!-- ผลการวิเคราะห์จะแสดงที่นี่ -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSymptom(element) {
+            element.classList.toggle('selected');
+        }
+
+        function analyzeHealth(event) {
+            event.preventDefault();
+            
+            // แสดง Loading
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('analysisResults').innerHTML = '';
+
+            // รวบรวมข้อมูล
+            const bloodPressure = document.getElementById('bloodPressure').value;
+            const heartRate = document.getElementById('heartRate').value;
+            const selectedSymptoms = Array.from(document.querySelectorAll('.symptom-tag.selected'))
+                .map(tag => tag.textContent);
+            const additionalSymptoms = document.getElementById('additionalSymptoms').value;
+
+            // จำลองการวิเคราะห์
+            setTimeout(() => {
+                analyzeAndDisplayResults(bloodPressure, heartRate, selectedSymptoms, additionalSymptoms);
+            }, 2000);
+
+            return false;
+        }
+
+        function analyzeAndDisplayResults(bloodPressure, heartRate, symptoms, additionalSymptoms) {
+            const results = document.getElementById('analysisResults');
+            const [systolic, diastolic] = bloodPressure.split('/').map(Number);
+            
+            let analysisHTML = '';
+
+            // วิเคราะห์ความดัน
+            analysisHTML += `
+                <div class="result-item">
+                    <h3>การวิเคราะห์ความดันโลหิต</h3>
+                    <p>ค่าที่วัดได้: ${bloodPressure} mmHg</p>
+            `;
+            
+            if (systolic >= 140 || diastolic >= 90) {
+                analysisHTML += `
+                    <span class="risk-level risk-high">ความดันโลหิตสูง</span>
+                    <p>ควรพบแพทย์เพื่อตรวจวินิจฉัยเพิ่มเติม</p>
+                `;
+            } else if (systolic >= 120 || diastolic >= 80) {
+                analysisHTML += `
+                    <span class="risk-level risk-medium">ความดันโลหิตค่อนข้างสูง</span>
+                    <p>ควรเฝ้าระวังและปรับพฤติกรรม</p>
+                `;
+            } else {
+                analysisHTML += `
+                    <span class="risk-level risk-low">ความดันโลหิตปกติ</span>
+                    <p>อยู่ในเกณฑ์ปกติ</p>
+                `;
+            }
+            analysisHTML += '</div>';
+
+            // วิเคราะห์อัตราการเต้นหัวใจ
+            analysisHTML += `
+                <div class="result-item">
+                    <h3>การวิเคราะห์อัตราการเต้นหัวใจ</h3>
+                    <p>อัตราการเต้น: ${heartRate} ครั้ง/นาที</p>
+            `;
+            
+            if (heartRate > 100) {
+                analysisHTML += `
+                    <span class="risk-level risk-medium">อัตราการเต้นหัวใจเร็วกว่าปกติ</span>
+                    <p>ควรพักผ่อนและเฝ้าสังเกตอาการ</p>
+                `;
+            } else if (heartRate < 60) {
+                analysisHTML += `
+                    <span class="risk-level risk-medium">อัตราการเต้นหัวใจช้ากว่าปกติ</span>
+                    <p>ควรปรึกษาแพทย์หากมีอาการอ่อนเพลียร่วมด้วย</p>
+                `;
+            } else {
+                analysisHTML += `
+                    <span class="risk-level risk-low">อัตราการเต้นหัวใจปกติ</span>
+                    <p>อยู่ในเกณฑ์ปกติ</p>
+                `;
+            }
+            analysisHTML += '</div>';
+
+            // วิเคราะห์อาการ
+            if (symptoms.length > 0 || additionalSymptoms) {
+                analysisHTML += `
+                    <div class="result-item">
+                        <h3>การวิเคราะห์อาการ</h3>
+                        <p>อาการที่พบ: ${symptoms.join(', ')}</p>
+                `;
+
+                // จำลองการวิเคราะห์อาการ
+                if (symptoms.includes('ไข้') && symptoms.includes('ไอ')) {
+                    analysisHTML += `
+                        <span class="risk-level risk-medium">อาจเป็นอาการของการติดเชื้อระบบทางเดินหายใจ</span>
+                        <p>แนะนำให้พบแพทย์เพื่อตรวจวินิจฉัยเพิ่มเติม</p>
+                    `;
+                } else if (symptoms.includes('ปวดศีรษะ') && symptoms.includes('เวียนศีรษะ')) {
+                    analysisHTML += `
+                        <span class="risk-level risk-medium">อาจเกี่ยวข้องกับความเครียดหรือความดันโลหิต</span>
+                        <p>ควรพักผ่อนให้เพียงพอและติดตามอาการ</p>
+                    `;
+                }
+                analysisHTML += '</div>';
+            }
+
+            // ซ่อน Loading และแสดงผล
+            document.getElementById('loadingIndicator').style.display = 'none';
+            results.innerHTML = analysisHTML;
+        }
+    </script>
+</body>
+</html>
