@@ -35,23 +35,32 @@
 
     <section class="container mx-auto px-4 py-16">
       <h2 class="text-3xl font-bold text-center mb-12">บริการของเรา</h2>
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="p-6 bg-white rounded-xl shadow-lg service-card">
-          <div onclick="window.location.href='L3.html'" class="icon-circle bg-blue-500 mb-4 mx-auto"><img src="/ai-health-analyze/IMG/วินิจฉัย.png" alt="Diagnosis"></div>
-          <h3 class="text-xl font-semibold mb-2 text-center">การวินิจฉัยด้วย AI</h3>
-          <p class="text-gray-600 text-center">ใช้ปัญญาประดิษฐ์ช่วยวินิจฉัยโรคเบื้องต้นได้อย่างแม่นยำ</p>
-        </div>
-        <div class="p-6 bg-white rounded-xl shadow-lg service-card">
-          <div onclick="window.location.href='Follow.html'" class="icon-circle bg-blue-500 mb-4 mx-auto"><img src="/ai-health-analyze/IMG/ติดตาม.webp" alt="Monitoring"></div>
-          <h3 class="text-xl font-semibold mb-2 text-center">ติดตามสุขภาพ</h3>
-          <p class="text-gray-600 text-center">ระบบติดตามสุขภาพอัจฉริยะตลอด 24 ชั่วโมง</p>
-        </div>
-        <div class="p-6 bg-white rounded-xl shadow-lg service-card">
-          <div onclick="window.location.href='L1.html'" class="icon-circle bg-blue-500 mb-4 mx-auto"><img src="/ai-health-analyze/IMG/วิเคา.png" alt="Analysis"></div>
-          <h3 class="text-xl font-semibold mb-2 text-center">วิเคราะห์ผลตรวจ</h3>
-          <p class="text-gray-600 text-center">วิเคราะห์ผลตรวจสุขภาพด้วยระบบ AI ทันสมัย</p>
-        </div>
-      </div>
+      <!-- แก้ไขเฉพาะส่วนของ img src -->
+<div class="grid md:grid-cols-3 gap-8">
+  <div class="p-6 bg-white rounded-xl shadow-lg service-card" onclick="window.location.href='health.html'">
+    <div class="icon-circle bg-blue-500 mb-4 mx-auto">
+      <img src="../IMG/วินิจฉัย.png" alt="Diagnosis">
+    </div>
+    <h3 class="text-xl font-semibold mb-2 text-center">ตรวจสุขภาพด้วย AI</h3>
+    <p class="text-gray-600 text-center">ใช้ปัญญาประดิษฐ์ตรวจสุขภาพแบบเรียลไทม์</p>
+  </div>
+  
+  <div class="p-6 bg-white rounded-xl shadow-lg service-card" onclick="window.location.href='Follow.html'">
+    <div class="icon-circle bg-blue-500 mb-4 mx-auto">
+      <img src="../IMG/ติดตาม.webp" alt="Monitoring">
+    </div>
+    <h3 class="text-xl font-semibold mb-2 text-center">ติดตามสุขภาพ</h3>
+    <p class="text-gray-600 text-center">ระบบติดตามสุขภาพอัจฉริยะตลอด 24 ชั่วโมง</p>
+  </div>
+  
+  <div class="p-6 bg-white rounded-xl shadow-lg service-card" onclick="window.location.href='Testresultts.html'">
+    <div class="icon-circle bg-blue-500 mb-4 mx-auto">
+      <img src="../IMG/วิเคา.png" alt="Analysis">
+    </div>
+    <h3 class="text-xl font-semibold mb-2 text-center">วิเคราะห์สุขภาพด้วย AI</h3>
+    <p class="text-gray-600 text-center">วิเคราะห์ผลตรวจสุขภาพแบบเชิงลึกด้วยระบบ AI ทันสมัย</p>
+  </div>
+</div>
     </section>
   </main>
 

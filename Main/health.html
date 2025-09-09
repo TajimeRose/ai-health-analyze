@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์และวินิจฉัยสุขภาพ</title>
+    <!-- แก้ไข path ของ CSS -->
+    <link rel="stylesheet" href="styles/health.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Landing Page -->
+        <div class="page landing">
+            <h1>วิเคราะห์สุขภาพของคุณด้วย AI</h1>
+            <p>กรอกข้อมูลสุขภาพเบื้องต้นเพื่อเริ่มการวิเคราะห์และวินิจฉัย</p>
+            <button onclick="goToPage('input')">เริ่มการกรอกข้อมูล</button>
+        </div>
+
+        <!-- Input Page -->
+        <div class="page input">
+            <h1>กรอกข้อมูลสุขภาพของคุณ</h1>
+            <form>
+                <label for="name">ชื่อ:</label>
+                <input type="text" id="name" name="name" placeholder="กรอกชื่อ">
+                <label for="age">อายุ:</label>
+                <input type="number" id="age" name="age" placeholder="กรอกอายุ">
+                <label for="height">ความสูง (ซม.):</label>
+                <input type="number" id="height" name="height" placeholder="กรอกความสูง">
+                <label for="weight">น้ำหนัก (กก.):</label>
+                <input type="number" id="weight" name="weight" placeholder="กรอกน้ำหนัก">
+                <button type="button" onclick="goToPage('analysis')">ถัดไป</button>
+            </form>
+        </div>
+
+        <!-- Analysis Page -->
+        <div class="page analysis">
+            <h1>ผลการวิเคราะห์ข้อมูลสุขภาพ</h1>
+            <div class="results">
+                <p>ดัชนีมวลกาย (BMI): <span id="bmi">22.5</span></p>
+                <p>ความเสี่ยงต่อโรคเบาหวาน: <span id="diabetes-risk">ปานกลาง</span></p>
+                <div class="chart">
+                    <img src="bmi-chart.png" alt="BMI Chart">
+                </div>
+            </div>
+            <button type="button" onclick="goToPage('diagnosis')">ดูผลการวินิจฉัย</button>
+        </div>
+
+        <!-- Diagnosis Page -->
+       <!-- แก้ไขปุ่มในส่วน Diagnosis Page -->
+<div class="page diagnosis">
+    <h1>ผลการวินิจฉัย</h1>
+    <p>ผลการวิเคราะห์ของคุณแสดงว่า คุณมีความเสี่ยงต่อการเป็นโรคเบาหวานในระดับปานกลาง</p>
+    <p>แนะนำให้ปรับเปลี่ยนพฤติกรรมการกินอาหารและออกกำลังกายอย่างสม่ำเสมอ</p>
+    <button onclick="window.location.href='index.html'">กลับสู่หน้าหลัก</button>
+</div>
+    </div>
+
+      <script src="script/health.js"></script>
+</body>
+</html>

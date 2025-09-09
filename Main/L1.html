@@ -35,14 +35,13 @@ button:hover{background:#1557b0;}
     color:white;
     cursor:pointer;
     transition:0.3s;
+    
 }
 #backBtn:hover{ background:#d95c00; }
 </style>
 </head>
 <body>
     
-    <!-- ปุ่มย้อนกลับไปหน้าก่อนหน้า -->
-<button id="backToPageBtn" style="margin-bottom:1rem; padding:0.6rem 1.2rem; border:none; border-radius:8px; background:#4caf50; color:white; cursor:pointer; transition:0.3s;">กลับไปหน้าก่อนหน้า</button>
 
 <div class="container">
     <header class="header">
@@ -98,6 +97,7 @@ button:hover{background:#1557b0;}
                 <textarea id="additionalSymptoms" rows="3" placeholder="ระบุอาการอื่นๆ"></textarea>
             </div>
             <button type="submit">วิเคราะห์ผล</button>
+            <button id="backToPageBtn" style="margin-bottom:1rem; padding:0.6rem 1.2rem; border:none; border-radius:8px; background:#4caf50; color:white; cursor:pointer; transition:0.3s;">กลับไปหน้าก่อนหน้า</button>
         </form>
         <div id="loadingIndicator">กำลังวิเคราะห์...</div>
         <div id="analysisResults"></div> 
