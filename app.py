@@ -11,14 +11,14 @@ app = Flask(__name__, template_folder="templates")
 # สร้าง client (อ่านคีย์จาก ENV ตามปกติ)
 client = OpenAI()  # อย่าลืมตั้ง OPENAI_API_KEY ใน .env
 
-@app.route("/")
+@app.route("Main/aibot.html")
 def index():
     # เสิร์ฟ templates/aibot.html
     return render_template("Main/aibot.html")
 
-@app.route("/aibot")
+@app.route("index.html")
 def aibot_alias():
-    return render_template("aibot.html")
+    return render_template("index.html")
 
 # รับเฉพาะ POST เพื่อหลีกเลี่ยงปัญหา get_json()==None
 @app.route("/api", methods=["POST"])
