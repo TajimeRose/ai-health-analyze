@@ -1,46 +1,51 @@
-from flask import Flask, render_template, request, jsonify
-from pathlib import Path
+from flask import Flask, request, jsonify, render_template
+from openai import OpenAI
+from dotenv import load_dotenv
 import os
 
-# กำหนดพาธแบบปลอดภัย
-BASE_DIR = Path(__file__).resolve().parent
-TEMPLATES_DIR = BASE_DIR / "templates"
-STATIC_DIR = BASE_DIR / "static"
+# โหลด .env
+load_dotenv()
 
-app = Flask(
-    __name__,
-    template_folder=str(TEMPLATES_DIR),
-    static_folder=str(STATIC_DIR),
-)
+app = Flask(__name__, template_folder="templates")
+
+# สร้าง client (อ่านคีย์จาก ENV ตามปกติ)
+client = OpenAI()  # อย่าลืมตั้ง OPENAI_API_KEY ใน .env
 
 @app.route("/")
 def index():
-    # DEBUG: พิมพ์รายชื่อไฟล์ใน templates ช่วยเช็คว่ามี Main/aibot.html จริง
-    try:
-        print("Template root:", TEMPLATES_DIR)
-        print("Templates:", [str(p.relative_to(TEMPLATES_DIR)) for p in TEMPLATES_DIR.rglob("*.html")])
-    except Exception as e:
-        print("List templates error:", e)
-
-    # ✅ ชี้ไปยังไฟล์ในโฟลเดอร์ Main
+    # เสิร์ฟ templates/aibot.html
     return render_template("Main/aibot.html")
 
-# เผื่ออยากเข้าตรง
-@app.route("/Main/aibot")
-def aibot_page():
-    return render_template("Main/aibot.html")
+@app.route("/aibot")
+def aibot_alias():
+    return render_template("aibot.html")
 
-# ตัวอย่าง API (ถ้าใช้ fetch('/api') แบบ POST)
+# รับเฉพาะ POST เพื่อหลีกเลี่ยงปัญหา get_json()==None
 @app.route("/api", methods=["POST"])
-def api():
+def chat_api():
+    # ตรวจ API key
+    if not os.getenv("OPENAI_API_KEY"):
+        return jsonify({"response": "API key not configured."}), 500
+
     data = request.get_json(silent=True) or {}
-    msg = (data.get("message") or "").strip()
-    if not msg:
+    user_message = (data.get("message") or "").strip()
+    if not user_message:
         return jsonify({"response": "Message cannot be empty."}), 400
-    # ตอบกลับทดสอบ
-    return jsonify({"response": f"รับแล้ว: {msg}"}), 200
+
+    try:
+        resp = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": user_message}],
+            temperature=0.7,
+            max_tokens=300,
+        )
+        ai_text = resp.choices[0].message.content
+        return jsonify({"response": ai_text})
+    except Exception as e:
+        # ล็อกแล้วส่งข้อความสั้น ๆ กลับไป
+        print(f"OpenAI API error: {e}")
+        return jsonify({"response": "OpenAI API error. Please try again."}), 502
 
 if __name__ == "__main__":
-    # รันจากโฟลเดอร์โปรเจกต์ที่มี app.py
-    print("🚀 http://127.0.0.1:5000  (ลอง / และ /Main/aibot)")
-    app.run(debug=True)
+    print("🚀 Starting Flask app on http://127.0.0.1:5000")
+    app.run(host="0.0.0.0", port=5000, debug=True)
