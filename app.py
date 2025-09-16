@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from openai import OpenAI
 import os
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
