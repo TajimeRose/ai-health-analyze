@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}AI Health Analyze{% endblock %}</title>
+    
+  <!-- CSS ทั่วไปของทั้งเว็บ (ถ้ามี) -->
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}"> -->
+  {% block extra_css %}{% endblock %}
+
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-blue-50">   <!-- ฟ้าอ่อนทั้งหน้า -->
+
+  <!-- Navbar -->
+  {% include "partials/navbar.html" %}
+
+  <!-- Content -->
+  <main class="container mx-auto px-4 py-6">
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+</html>

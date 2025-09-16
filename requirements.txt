@@ -1,0 +1,7 @@
+flask
+flask-cors
+pymongo
+firebase-admin
+python-dotenv
+openai
+gunicorn>=21.2

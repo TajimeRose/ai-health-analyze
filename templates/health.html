@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}วิเคราะห์สุขภาพด้วย AI{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+  <h1 class="text-3xl font-bold text-center mb-2">วิเคราะห์สุขภาพด้วยระบบ AI</h1>
+  <p class="text-center text-gray-600 mb-8">กรุณากรอกข้อมูลให้ครบถ้วนเพื่อการวิเคราะห์ที่แม่นยำ</p>
+
+  <div class="text-xs text-gray-500 mb-3">จำนวนอาการที่โหลดมา: {{ symptoms|length }}</div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- ฟอร์ม -->
+    <div class="bg-white rounded-2xl shadow p-6">
+      <h2 class="text-xl font-bold mb-4">ข้อมูลสุขภาพ</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="text-sm text-gray-600">ความดัน (SYS)</label>
+          <input id="bp_sys" type="number" class="mt-1 w-full border rounded px-3 py-2" placeholder="120">
+        </div>
+        <div>
+          <label class="text-sm text-gray-600">ความดัน (DIA)</label>
+          <input id="bp_dia" type="number" class="mt-1 w-full border rounded px-3 py-2" placeholder="80">
+        </div>
+        <div class="md:col-span-2">
+          <label class="text-sm text-gray-600">ชีพจร (ครั้ง/นาที)</label>
+          <input id="hr" type="number" class="mt-1 w-full border rounded px-3 py-2" placeholder="72">
+        </div>
+      </div>
+
+      <!-- ✅ อาการที่พบ -->
+      <div class="mb-4">
+        <div class="text-sm font-semibold mb-2">อาการที่พบ</div>
+        <div id="symptom-chips" class="flex flex-wrap gap-2">
+          {% for s in symptoms %}
+            <button type="button"
+                    class="sym-chip px-3 py-1 rounded-full border bg-gray-100 hover:bg-blue-50"
+                    data-label="{{ s }}">{{ s }}</button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="text-sm font-semibold">อาการเพิ่มเติม</label>
+        <textarea id="extra" rows="3" class="mt-1 w-full border rounded px-3 py-2"
+                  placeholder="กรุณาระบุอาการอื่น ๆ ที่พบ"></textarea>
+      </div>
+
+      <button id="analyze-btn"
+              class="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold">
+        วิเคราะห์ผล
+      </button>
+      <p id="err" class="text-red-600 mt-2 hidden"></p>
+    </div>
+
+    <!-- ผลการวิเคราะห์ -->
+    <div class="bg-white rounded-2xl shadow p-6">
+      <h2 class="text-xl font-bold mb-4">ผลการวิเคราะห์</h2>
+      <div id="flags" class="mb-3"></div>
+      <div id="analysis" class="prose max-w-none whitespace-pre-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .sym-chip.active { background:#e0f2fe; border-color:#60a5fa; }
+</style>
+
+<script>
+  // toggle chips
+  const chips = Array.from(document.querySelectorAll('.sym-chip'));
+  chips.forEach(b => b.addEventListener('click', () => b.classList.toggle('active')));
+
+  document.getElementById('analyze-btn').addEventListener('click', async ()=>{
+    const sys   = document.getElementById('bp_sys').value;
+    const dia   = document.getElementById('bp_dia').value;
+    const hr    = document.getElementById('hr').value;
+    const extra = document.getElementById('extra').value;
+    const sel   = chips.filter(c=>c.classList.contains('active')).map(c=>c.dataset.label);
+
+    const err = document.getElementById('err');
+    const analysis = document.getElementById('analysis');
+    const flagsBox = document.getElementById('flags');
+    err.classList.add('hidden');
+    analysis.textContent = "กำลังวิเคราะห์…";
+
+    try{
+      const res = await fetch("/api/health/analyze",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({
+          systolic: sys, diastolic: dia, heart_rate: hr,
+          symptoms: sel, extra_notes: extra
+        })
+      });
+      if(!res.ok){ throw new Error(`HTTP ${res.status}`); }
+      const data = await res.json();
+
+      flagsBox.innerHTML = (data.flags||[]).map(f =>
+        `<span class="inline-block px-2 py-1 mr-2 mb-2 rounded bg-red-50 text-red-700 border border-red-200 text-sm">${f}</span>`
+      ).join("");
+
+      analysis.textContent = data.analysis || "ไม่มีผลลัพธ์";
+    }catch(e){
+      err.textContent = "วิเคราะห์ไม่สำเร็จ: " + e.message;
+      err.classList.remove('hidden');
+      analysis.textContent = "";
+      flagsBox.innerHTML = "";
+    }
+  });
+</script>
+{% endblock %}

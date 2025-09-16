@@ -1,0 +1,85 @@
+<nav class="bg-white shadow-md">
+  <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+    <!-- Logo -->
+    <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600">
+      AI Health Analyze
+    </a>
+
+    <!-- Hamburger (มือถือ) -->
+    <button
+      id="nav-toggle"
+      class="md:hidden inline-flex items-center justify-center p-2 border rounded text-blue-600 border-blue-200"
+      aria-controls="primary-menu"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <svg id="icon-open" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+      <svg id="icon-close" class="h-6 w-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <!-- เมนูหลัก (เดสก์ท็อป) -->
+    <div class="hidden md:flex items-center gap-6">
+      <a href="{{ url_for('aibot') }}"       class="hover:text-blue-600">แชทกับ AI</a>
+      <a href="{{ url_for('health') }}"      class="hover:text-blue-600">วิเคราะห์สุขภาพ AI</a>
+      <a href="{{ url_for('follow') }}"      class="hover:text-blue-600">ติดตามสุขภาพ</a>
+      <a href="{{ url_for('testresults') }}" class="hover:text-blue-600">ปรึกษาสุขภาพกับ AI</a>
+    </div>
+
+    <div class="hidden md:flex items-center gap-2">
+      <a href="{{ url_for('login') }}"  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">เข้าสู่ระบบ</a>
+      <a href="{{ url_for('signup') }}" class="px-4 py-2 bg-gray-100 text-blue-700 rounded-lg hover:bg-gray-200">สมัครสมาชิก</a>
+    </div>
+  </div>
+
+  <!-- เมนู (มือถือ) : ซ่อนจริงด้วย hidden -->
+  <div id="primary-menu" class="hidden md:hidden border-t bg-white">
+    <div class="px-4 py-3 flex flex-col gap-3">
+      <a href="{{ url_for('aibot') }}"       class="py-2 hover:text-blue-600">แชทกับ AI</a>
+      <a href="{{ url_for('health') }}"      class="py-2 hover:text-blue-600">วิเคราะห์สุขภาพ AI</a>
+      <a href="{{ url_for('follow') }}"      class="py-2 hover:text-blue-600">ติดตามสุขภาพ</a>
+      <a href="{{ url_for('testresults') }}" class="py-2 hover:text-blue-600">ปรึกษาสุขภาพกับ AI</a>
+      <div class="pt-2 flex gap-2">
+        <a href="{{ url_for('login') }}"  class="flex-1 text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">เข้าสู่ระบบ</a>
+        <a href="{{ url_for('signup') }}" class="flex-1 text-center px-4 py-2 bg-gray-100 text-blue-700 rounded-lg hover:bg-gray-200">สมัครสมาชิก</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const btn = document.getElementById('nav-toggle');
+      const menu = document.getElementById('primary-menu');
+      const iconOpen = document.getElementById('icon-open');
+      const iconClose = document.getElementById('icon-close');
+      if(!btn || !menu) return;
+
+      function setOpen(open){
+        menu.classList.toggle('hidden', !open);
+        btn.setAttribute('aria-expanded', String(open));
+        iconOpen.classList.toggle('hidden', open);
+        iconClose.classList.toggle('hidden', !open);
+      }
+
+      btn.addEventListener('click', () => {
+        const open = menu.classList.contains('hidden');
+        setOpen(open);
+      });
+
+      // ปิดเมนูมือถืออัตโนมัติเมื่อคลิกลิงก์
+      menu.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => setOpen(false));
+      });
+
+      // กันเหตุค้างเปิดตอนเปลี่ยนขนาดจอ
+      window.addEventListener('resize', () => {
+        if (window.innerWidth >= 768) setOpen(false);
+      });
+    })();
+  </script>
+</nav>

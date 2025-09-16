@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}สมัครสมาชิก | AI Health Analyze{% endblock %}
+
+{% block content %}
+<div class="signup-container">
+<h2>สมัครสมาชิก</h2>
+<form id="signupForm">
+<div class="form-group">
+<label for="email">อีเมล</label>
+<input id="email" name="email" placeholder="กรอกอีเมล" required="" type="email"/>
+</div>
+<div class="form-group">
+<label for="password">รหัสผ่าน</label>
+<input id="password" name="password" placeholder="กรอกรหัสผ่าน" required="" type="password"/>
+</div>
+<div class="form-group">
+<label for="confirmPassword">ยืนยันรหัสผ่าน</label>
+<input id="confirmPassword" name="confirmPassword" placeholder="กรอกยืนยันรหัสผ่าน" required="" type="password"/>
+</div>
+<button class="signup-btn" type="submit">สมัครสมาชิก</button>
+</form>
+<div class="login-link">
+      มีบัญชีแล้ว? <a href="index.html">เข้าสู่ระบบ</a>
+</div>
+</div>
+<script>
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      if (password !== confirmPassword) {
+        alert('รหัสผ่านไม่ตรงกัน');
+        return;
+      }
+      // TODO: เชื่อมต่อ Firebase หรือ backend สำหรับสมัครสมาชิก
+      alert('สมัครสมาชิกสำเร็จ (ตัวอย่าง)');
+      window.location.href = "index.html";
+    });
+  </script>
+{% endblock %}

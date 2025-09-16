@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}แชทกับ AI - AI Health Analyze{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-4 text-center">แชทกับ AI</h2>
+
+<div class="relative z-0 bg-white shadow rounded-xl p-4 max-w-4xl mx-auto w-full">
+  <div id="chat" class="h-80 overflow-y-auto border rounded p-3 mb-3 bg-gray-50"></div>
+
+  <form id="chat-form" class="flex items-center gap-3">
+    <!-- บังคับขนาดให้ชนะ CSS อื่น ๆ -->
+    <input id="msg"
+           type="text"
+           class="flex-1 w-full min-w-0 h-11 border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+           placeholder="พิมพ์ข้อความ...">
+    <button type="submit"
+            class="h-11 px-6 bg-blue-600 text-white rounded hover:bg-blue-700">
+      ส่ง
+    </button>
+  </form>
+
+  <p id="err" class="text-red-600 mt-2 hidden"></p>
+</div>
+
+<style>
+  /* กัน CSS ภายนอกมาทับ input หน้านี้ */
+  #chat-form input#msg {
+    width: 100% !important;
+    height: 44px !important;
+  }
+</style>
+
+<script>
+  const chat = document.getElementById('chat');
+  const form = document.getElementById('chat-form');
+  const msg  = document.getElementById('msg');
+  const err  = document.getElementById('err');
+
+  function addLine(html, who){
+    const wrap = document.createElement('div');
+    wrap.className = `mb-2 ${who === 'ai' ? 'text-blue-700' : ''}`;
+    wrap.innerHTML = html;
+    chat.appendChild(wrap);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = msg.value.trim();
+    if (!text) return;
+    msg.value = '';
+    err.classList.add('hidden');
+
+    addLine(`<b>คุณ:</b> ${text}`, 'me');
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+      if (data && data.response) {
+        addLine(`<b>AI:</b> ${data.response}`, 'ai');
+      } else {
+        throw new Error('ไม่มีฟิลด์ "response"');
+      }
+    } catch (e) {
+      err.textContent = `ส่งไม่สำเร็จ: ${e.message}`;
+      err.classList.remove('hidden');
+    }
+  });
+</script>
+{% endblock %}

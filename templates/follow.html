@@ -1,0 +1,467 @@
+{% extends "base.html" %}
+
+{% block title %}ติดตามสุขภาพ - AI Health Analyze{% endblock %}
+
+{% block extra_css %}
+
+<style>
+  /* ทุกสไตล์ถูกสcope ด้วย .follow-page เพื่อไม่ชนกับ navbar/หน้าอื่น */
+  .follow-page .page {
+    max-width: 1000px;
+    margin: 0 auto;           /* จัดกึ่งกลางแนวนอน */
+    padding: 20px 16px;
+  }
+
+  .follow-page h1 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 2rem;
+    font-weight: 700;
+  }
+
+  .follow-page .card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+  }
+
+  .follow-page .input-group { margin-bottom: 18px; }
+  .follow-page .input-group label {
+    display:block; margin-bottom:6px; font-weight:700; color:#2c3e50;
+  }
+  .follow-page .input-group input,
+  .follow-page .input-group select,
+  .follow-page .input-group textarea{
+    width:100%; padding:12px 14px; border:2px solid #e5e7eb; border-radius:10px;
+    background:#fff; transition:border-color .2s, box-shadow .2s, transform .05s;
+    font-size:16px;
+  }
+  .follow-page .input-group input:focus,
+  .follow-page .input-group select:focus,
+  .follow-page .input-group textarea:focus{
+    outline:none; border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.15);
+  }
+  .follow-page .note{font-size:12px;color:#666;margin-top:6px;}
+
+  .follow-page .optional-section{
+    margin-top: 10px; background:#f8f9fa; padding:18px; border-radius:14px; border-left:4px solid #3498db;
+  }
+  .follow-page .optional-section h2{margin:0 0 6px 0; color:#3498db; font-size:1.1rem;}
+  .follow-page .optional-section p{margin:0 0 16px 0; color:#666;}
+
+  /* ปุ่มให้มีฟีดแบ็กกด/โฟกัส */
+  .follow-page .button{
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:12px 16px; border-radius:10px; border:0; cursor:pointer;
+    background:#2E7D32; color:#fff; font-weight:700;
+    box-shadow: 0 6px 14px rgba(46,125,50,.22);
+    transition: transform .06s ease, box-shadow .12s ease, background .2s;
+  }
+  .follow-page .button:hover{ transform: translateY(-1px); }
+  .follow-page .button:active{
+    transform: translateY(0);
+    box-shadow: inset 0 2px 6px rgba(0,0,0,.15);
+  }
+  .follow-page .button:focus{ outline:none; box-shadow:0 0 0 3px rgba(59,130,246,.22); }
+
+  /* การ์ดกราฟ/AI */
+  .follow-page .ai-from-form h2,
+  .follow-page .health-chart h2,
+  .follow-page .ai-qa h2,
+  .follow-page .recommendations h2 { margin-bottom:10px; }
+
+  #weightExplanation{ font-size:12px; color:#555; margin:10px 0 14px; line-height:1.6; }
+
+  /* Responsive */
+  @media (max-width: 768px){
+    .follow-page h1 { font-size: 1.6rem; }
+    .follow-page .card { padding: 18px; border-radius: 16px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="follow-page">
+  <div class="page">
+    <h1>ติดตามสุขภาพด้วย AI</h1>
+
+    <!-- การ์ด: ฟอร์ม -->
+    <div class="card">
+      <form id="healthForm">
+        <!-- เพศ (อยู่บนสุด) -->
+        <div class="input-group">
+          <label for="gender">เพศ <span style="color:#c62828">*</span></label>
+          <select id="gender" name="gender" required>
+            <option value="">เลือกเพศ</option>
+            <option value="male">เพศชาย</option>
+            <option value="female">เพศหญิง</option>
+            <option value="mtf">แปลงเพศ (ชายเป็นหญิง)</option>
+            <option value="ftm">แปลงเพศ (หญิงเป็นชาย)</option>
+          </select>
+        </div>
+
+        <!-- ส่วนสูง -->
+        <div class="input-group">
+          <label for="height">ส่วนสูง (เซนติเมตร) <span style="color:#c62828">*</span></label>
+          <input id="height" name="height" placeholder="เช่น 170" type="number" step="0.1" min="50" max="250" required/>
+          <div class="note">กรุณากรอกส่วนสูงเป็นเซนติเมตร</div>
+        </div>
+
+        <!-- น้ำหนัก -->
+        <div class="input-group">
+          <label for="weight">น้ำหนัก (กิโลกรัม) <span style="color:#c62828">*</span></label>
+          <input id="weight" name="weight" placeholder="เช่น 70.5" type="number" step="0.1" min="20" max="300" required/>
+          <div class="note">กรุณากรอกน้ำหนักเป็นกิโลกรัม</div>
+        </div>
+
+        <!-- พฤติกรรม -->
+        <div class="input-group">
+          <label for="alcohol">การดื่มเครื่องดื่มแอลกอฮอล์</label>
+          <select id="alcohol" name="alcohol">
+            <option value="">เลือกช่วงเวลา</option>
+            <option value="never">ไม่เคยดื่ม</option>
+            <option value="hours">ชั่วโมงที่ผ่านมา</option>
+            <option value="today">วันนี้</option>
+            <option value="yesterday">เมื่อวาน</option>
+            <option value="2-3days">2-3 วันก่อน</option>
+            <option value="week">สัปดาห์ที่แล้ว</option>
+            <option value="month">เดือนที่แล้ว</option>
+            <option value="longer">นานกว่า 1 เดือน</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="smoking">การสูบบุหรี่หรือใช้ผลิตภัณฑ์ยาสูบ</label>
+          <select id="smoking" name="smoking">
+            <option value="">เลือกช่วงเวลา</option>
+            <option value="never">ไม่เคยสูบ</option>
+            <option value="minutes">นาทีที่ผ่านมา</option>
+            <option value="hours">ชั่วโมงที่ผ่านมา</option>
+            <option value="today">วันนี้</option>
+            <option value="yesterday">เมื่อวาน</option>
+            <option value="2-3days">2-3 วันก่อน</option>
+            <option value="week">สัปดาห์ที่แล้ว</option>
+            <option value="month">เดือนที่แล้ว</option>
+            <option value="quit">เลิกแล้ว</option>
+          </select>
+        </div>
+
+        <!-- การนอน / อาการ -->
+        <div class="input-group">
+          <label for="sleep">จำนวนชั่วโมงการนอนเฉลี่ยต่อคืน <span style="color:#c62828">*</span></label>
+          <input id="sleep" name="sleep" placeholder="เช่น 8 " type="number" step="0.5" min="0" max="24" required/>
+        </div>
+
+        <div class="input-group">
+          <label for="symptoms">อาการที่พบ และระยะเวลาที่มีอาการ <span style="color:#c62828">*</span></label>
+          <textarea id="symptoms" name="symptoms" placeholder="เช่น มีไข้มาแล้ว 3 วัน, ปวดหัวเมื่อเช้า, ไอมาแล้ว 1 สัปดาห์" rows="4" required></textarea>
+          <div class="note">โปรดอธิบายอาการและระยะเวลาที่มีอาการโดยละเอียด</div>
+        </div>
+
+        <!-- ข้อมูลเพิ่มเติม (ไม่บังคับ) -->
+        <div class="optional-section">
+          <h2>ข้อมูลเพิ่มเติมเพื่อการประเมินที่แม่นยำยิ่งขึ้น (ไม่บังคับ)</h2>
+          <p>กรอกเฉพาะถ้ามีข้อมูล จะช่วยให้การประเมินแม่นยำขึ้น</p>
+
+          <div class="input-group">
+            <label for="bloodPressure">ความดันโลหิต (mmHg)</label>
+            <input id="bloodPressure" name="bloodPressure" placeholder="เช่น 120/80" type="text" pattern="[0-9]{2,3}/[0-9]{2,3}"/>
+          </div>
+
+          <div class="input-group">
+            <label for="heartRate">อัตราการเต้นของหัวใจ (ครั้งต่อนาที)</label>
+            <input id="heartRate" name="heartRate" placeholder="เช่น 72" type="number" min="30" max="200"/>
+          </div>
+
+          <div class="input-group">
+            <label for="bloodSugar">ระดับน้ำตาลในเลือด (mg/dL)</label>
+            <input id="bloodSugar" name="bloodSugar" placeholder="เช่น 90" type="number" min="20" max="500"/>
+          </div>
+
+          <div class="input-group">
+            <label for="temperature">อุณหภูมิร่างกาย (°C)</label>
+            <input id="temperature" name="temperature" placeholder="เช่น 36.5" type="number" step="0.1" min="30" max="45"/>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+          <button class="button" type="button" onclick="updateHealth()">อัพเดทข้อมูล</button>
+          <button class="button" type="button" onclick="analyzeFormWithAI()" style="background:#1565C0">ให้ AI วิเคราะห์จากฟอร์ม</button>
+        </div>
+
+        <div class="alert" id="alert" style="display:none;background:#ffebee;color:#c62828;padding:10px 12px;border-radius:10px;margin-top:10px;"></div>
+        <div class="success" id="success" style="display:none;background:#e8f5e9;color:#2e7d32;padding:10px 12px;border-radius:10px;margin-top:10px;"></div>
+      </form>
+    </div>
+
+    <!-- การ์ด: คำตอบ AI จากฟอร์ม -->
+    <div class="card ai-from-form">
+      <h2>ผลวิเคราะห์จาก AI (ตามข้อมูลฟอร์ม)</h2>
+      <div id="aiFromForm" style="white-space:pre-wrap;"></div>
+    </div>
+
+    <!-- การ์ด: กราฟ -->
+    <div class="card health-chart">
+      <h2>กราฟสุขภาพ: คะแนนสุขภาพโดยรวม + BMI</h2>
+      <canvas id="healthTrendChart"></canvas>
+
+      <div id="weightExplanation">
+        <b>เกณฑ์ BMI (ผู้ใหญ่ชาวเอเชีย)</b><br>
+        - &lt; 18.5 = น้ำหนักน้อย<br>
+        - 18.5–22.9 = ปกติ<br>
+        - 23.0–24.9 = ท้วม<br>
+        - 25.0–29.9 = อ้วนระดับ 1<br>
+        - ≥ 30 = อ้วนระดับ 2
+      </div>
+
+      <button class="button" type="button" onclick="resetHistory()" style="background:#E53935">ล้างประวัติสุขภาพ</button>
+      <button class="button" type="button" onclick="downloadChart()" style="background:#1976D2">ดาวน์โหลดกราฟ (PNG)</button>
+    </div>
+
+    <!-- การ์ด: Q&A AI -->
+    <div class="card ai-qa">
+      <h2>ถาม–ตอบกับ AI</h2>
+      <div class="input-group">
+        <label for="aiQuestion">พิมพ์คำถามถึง AI (สุขภาพ/การดูแลตัวเอง)</label>
+        <textarea id="aiQuestion" rows="4" placeholder="เช่น ช่วงนี้นอนไม่พอ ตื่นมามึนหัว ควรดูแลตัวเองอย่างไร?"></textarea>
+      </div>
+      <button class="button" type="button" onclick="askAI()" style="background:#1565C0">ถาม AI</button>
+      <div id="aiAnswer" style="white-space:pre-wrap; margin-top:12px;"></div>
+    </div>
+
+    <!-- การ์ด: คำแนะนำระบบ -->
+    <div class="card recommendations">
+      <h2>คำแนะนำจากระบบ</h2>
+      <div id="aiRecommendationsWrapper">
+        <ul id="aiRecommendations">
+          <li>ออกกำลังกายอย่างสม่ำเสมอ อย่างน้อยวันละ 30 นาที</li>
+          <li>ดื่มน้ำให้เพียงพอ อย่างน้อยวันละ 8 แก้ว</li>
+          <li>พักผ่อนให้เพียงพอ ควรนอนวันละ 7–8 ชั่วโมง</li>
+          <li>รับประทานอาหารให้ครบ 5 หมู่</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // ====== local state & helpers ======
+  let healthHistory = JSON.parse(localStorage.getItem("healthHistory") || "[]");
+
+  const $ = (id) => document.getElementById(id);
+
+  function getBMI(heightCm, weightKg){
+    const h = parseFloat(heightCm), w = parseFloat(weightKg);
+    if (!h || !w) return null;
+    const m = h/100;
+    if (m<=0) return null;
+    return +(w/(m*m)).toFixed(1);
+  }
+
+  function calculateOverallHealth(bp, hr, bmi, sugar, sleepHours){
+    let score = 100;
+    if (bp) {
+      const [s,d] = bp.split('/');
+      const sys=parseInt(s), dia=parseInt(d);
+      if (sys>140 || dia>90) score-=20;
+      else if (sys<90 || dia<60) score-=15;
+    }
+    if (hr && (hr>100 || hr<60)) score-=15;
+    if (sugar && (sugar>126 || sugar<70)) score-=20;
+    if (bmi){
+      if (bmi<18.5) score-=10;
+      else if (bmi>=25 && bmi<30) score-=15;
+      else if (bmi>=30) score-=25;
+    }
+    const s = parseFloat(sleepHours);
+    if (!isNaN(s)) { if (s<6) score-=10; else if (s>10) score-=5; }
+    return Math.max(0, Math.round(score));
+  }
+
+  function bmiStatus(bmi){
+    if (bmi===null) return 'ไม่ทราบ';
+    if (bmi<18.5) return 'น้ำหนักน้อย';
+    if (bmi<23.0) return 'ปกติ';
+    if (bmi<25.0) return 'ท้วม';
+    if (bmi<30.0) return 'อ้วนระดับ 1';
+    return 'อ้วนระดับ 2';
+  }
+
+  function updateRecommendations(status, bmiText){
+    const ul = $("aiRecommendations");
+    ul.innerHTML = "";
+    const items = (status==='เสี่ยง')
+      ? ['ควรพักผ่อนให้เพียงพอ','หลีกเลี่ยงความเครียด','ตรวจสุขภาพเพิ่มเติมหากอาการต่อเนื่อง','ลดหวาน/มัน/เค็ม']
+      : (status==='ปานกลาง')
+      ? ['ออกกำลังกายสม่ำเสมอ','ควบคุมอาหาร','นอนให้พอ 7–8 ชม.','ติดตามตัวเลขเป็นระยะ']
+      : ['รักษาพฤติกรรมที่ดีต่อเนื่อง','ขยับร่างกายเพิ่มกิจวัตร','อาหารครบ 5 หมู่','ดื่มน้ำให้เพียงพอ'];
+    items.unshift('สถานะ BMI: '+bmiText);
+    items.forEach(t => { const li=document.createElement('li'); li.textContent=t; ul.appendChild(li); });
+  }
+
+  // ====== Chart init ======
+  const ctx = $("healthTrendChart").getContext('2d');
+  const gradientHealth = ctx.createLinearGradient(0,0,0,300);
+  gradientHealth.addColorStop(0,'rgba(76,175,80,0.4)');
+  gradientHealth.addColorStop(1,'rgba(76,175,80,0.05)');
+  const gradientBMI = ctx.createLinearGradient(0,0,0,300);
+  gradientBMI.addColorStop(0,'rgba(25,118,210,0.4)');
+  gradientBMI.addColorStop(1,'rgba(25,118,210,0.05)');
+
+  const healthChart = new Chart(ctx,{
+    type:'line',
+    data:{
+      labels: healthHistory.map(h=>h.date),
+      datasets:[
+        { label:'คะแนนสุขภาพโดยรวม', data: healthHistory.map(h=>h.score),
+          borderColor:'#4CAF50', backgroundColor: gradientHealth, pointBackgroundColor:'#388E3C',
+          fill:true, yAxisID:'y1', tension:0.3 },
+        { label:'BMI', data: healthHistory.map(h=>h.bmi),
+          borderColor:'#1976D2', backgroundColor: gradientBMI, pointBackgroundColor:'#0D47A1',
+          fill:true, yAxisID:'y2', tension:0.3 }
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{ title:{display:true, text:'แนวโน้มคะแนนสุขภาพ + BMI'} },
+      scales:{
+        y1:{type:'linear', position:'left', min:0, max:100, title:{display:true, text:'คะแนนสุขภาพ'}},
+        y2:{type:'linear', position:'right', min:10, max:40, title:{display:true, text:'BMI'}}
+      }
+    }
+  });
+
+  // ====== actions ======
+  window.updateHealth = () => {
+    const gender = $("gender").value;
+    const height = parseFloat($("height").value);
+    const weight = parseFloat($("weight").value);
+    const sleep  = parseFloat($("sleep").value);
+    const symptomsText = ($("symptoms").value || "").trim();
+
+    const alertBox = $("alert"), okBox = $("success");
+    if (!gender || !height || !weight || !sleep || !symptomsText){
+      alertBox.style.display='block'; okBox.style.display='none';
+      alertBox.textContent='กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน';
+      return;
+    }
+
+    const bp = ($("bloodPressure").value || "").trim();
+    const hr = parseInt($("heartRate").value || "");
+    const sugar = parseFloat($("bloodSugar").value || "");
+
+    const bmi = getBMI(height, weight);
+    const score = calculateOverallHealth(bp || null, hr || null, bmi, sugar || null, sleep);
+    const today = new Date().toLocaleDateString("th-TH");
+
+    healthHistory.push({date:today, score:score, bmi:bmi});
+    localStorage.setItem("healthHistory", JSON.stringify(healthHistory));
+
+    healthChart.data.labels = healthHistory.map(h=>h.date);
+    healthChart.data.datasets[0].data = healthHistory.map(h=>h.score);
+    healthChart.data.datasets[1].data = healthHistory.map(h=>h.bmi);
+    healthChart.update();
+
+    const status = (score<60) ? 'เสี่ยง' : (score<80) ? 'ปานกลาง' : 'ดี';
+    updateRecommendations(status, bmiStatus(bmi));
+
+    alertBox.style.display='none'; okBox.style.display='block';
+    okBox.textContent='อัพเดทข้อมูลสำเร็จ';
+  };
+
+  window.analyzeFormWithAI = async () => {
+    const gender = ($("gender").value || "").trim();
+    const height = parseFloat($("height").value);
+    const weight = parseFloat($("weight").value);
+    const sleep  = parseFloat($("sleep").value);
+    const symptomsText = ($("symptoms").value || "").trim();
+
+    const alcohol = ($("alcohol").value || "").trim();
+    const smoking = ($("smoking").value || "").trim();
+    const bp    = ($("bloodPressure").value || "").trim();
+    const hrTxt = ($("heartRate").value || "").trim();
+    const sugarTxt = ($("bloodSugar").value || "").trim();
+    const tempTxt  = ($("temperature").value || "").trim();
+
+    const out = $("aiFromForm");
+    if (!gender || !height || !weight || !sleep || !symptomsText){
+      out.textContent = "กรุณากรอกข้อมูลที่จำเป็น (มี *) ให้ครบก่อน"; out.style.color="#c62828"; return;
+    }
+    out.style.color = "#111"; out.textContent = "กำลังวิเคราะห์จากข้อมูลฟอร์ม…";
+
+    let systolic=null, diastolic=null;
+    if (bp.includes('/')){ const [s,d]=bp.split('/'); systolic=parseInt(s); diastolic=parseInt(d); }
+    const bmi = getBMI(height, weight);
+    const symptoms = symptomsText.split(",").map(x=>x.trim()).filter(Boolean);
+
+    try{
+      const res = await fetch("/api/health/analyze",{
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          gender,
+          height_cm: height,
+          weight_kg: weight,
+          sleep_hours: sleep,
+          alcohol, smoking,
+          systolic, diastolic,
+          heart_rate: hrTxt ? parseInt(hrTxt) : null,
+          blood_sugar: sugarTxt ? parseFloat(sugarTxt) : null,
+          temperature_c: tempTxt ? parseFloat(tempTxt) : null,
+          bmi, symptoms
+        })
+      });
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      out.textContent = (data.flags && data.flags.length)
+        ? `ธงเตือน: ${data.flags.join(", ")}\n\n${data.analysis}`
+        : data.analysis || "ไม่มีผลลัพธ์";
+    }catch(e){
+      out.style.color="#c62828"; out.textContent="เกิดข้อผิดพลาด: "+e.message;
+    }
+  };
+
+  window.askAI = async () => {
+    const q = ($("aiQuestion").value || "").trim();
+    const out = $("aiAnswer");
+    if (!q){ out.textContent="กรุณาพิมพ์คำถามก่อน"; out.style.color="#c62828"; return; }
+    out.style.color="#111"; out.textContent="กำลังประมวลผล…";
+    try{
+      const res = await fetch("/api/health/analyze", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ free_text: q })
+      });
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      out.textContent = data.analysis || "ไม่มีคำตอบจาก AI";
+    }catch(e){
+      out.style.color="#c62828"; out.textContent="เกิดข้อผิดพลาด: "+e.message;
+    }
+  };
+
+  window.resetHistory = () => {
+    if (!confirm("ต้องการล้างประวัติสุขภาพทั้งหมดหรือไม่?")) return;
+    healthHistory = [];
+    localStorage.removeItem("healthHistory");
+    healthChart.data.labels = [];
+    healthChart.data.datasets[0].data = [];
+    healthChart.data.datasets[1].data = [];
+    healthChart.update();
+    alert("ล้างประวัติเรียบร้อยแล้ว");
+  };
+
+  window.downloadChart = () => {
+    const a = document.createElement('a');
+    a.href = healthChart.toBase64Image();
+    a.download = 'health_trend_bmi.png';
+    a.click();
+  };
+});
+</script>
+
+{% endblock %}

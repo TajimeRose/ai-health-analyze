@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}วิเคราะห์สุขภาพด้วย AI{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <h1 class="text-3xl font-bold text-center mb-3">ปรึกษาอาการสุขภาพกับ AI</h1>
+  <p class="text-center text-gray-600 mb-6">
+    อธิบายอาการของคุณ เช่น ระยะเวลาที่เป็น อาการร่วม โรคประจำตัว ยา/อาหารเสริมที่ใช้ ฯลฯ
+  </p>
+
+  <div class="bg-white rounded-2xl shadow p-6">
+    <label class="block text-sm font-medium mb-2">พิมพ์อาการ/ประวัติสุขภาพของคุณ</label>
+    <textarea id="free_text" rows="8"
+              class="w-full border rounded px-3 py-2"
+              placeholder="เช่น ไข้มา 2 วัน หนาวสั่น ไอมีเสมหะ เหนื่อยง่าย เคยเป็นภูมิแพ้ รับประทานพาราเซตามอลแล้วดีขึ้นเล็กน้อย"></textarea>
+
+    <button id="analyze-btn"
+            class="mt-4 w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold">
+      วิเคราะห์ผล
+    </button>
+
+    <p id="err" class="text-red-600 mt-3 hidden"></p>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow p-6 mt-6">
+    <h2 class="text-xl font-bold mb-3">ผลการวิเคราะห์</h2>
+    <div id="analysis" class="prose max-w-none whitespace-pre-wrap text-gray-800"></div>
+    <div class="mt-4 text-xs text-gray-500">
+      * ข้อความนี้เป็นคำแนะนำทั่วไป ไม่ใช่การวินิจฉัยโรค หากมีอาการรุนแรงหรือฉุกเฉินควรไปพบแพทย์ทันที
+    </div>
+  </div>
+</div>
+
+<script>
+  const btn = document.getElementById('analyze-btn');
+  const textarea = document.getElementById('free_text');
+  const out = document.getElementById('analysis');
+  const err = document.getElementById('err');
+
+  btn.addEventListener('click', async () => {
+    const text = (textarea.value || '').trim();
+    if (!text) {
+      err.textContent = "กรุณาพิมพ์อาการก่อน";
+      err.classList.remove('hidden');
+      return;
+    }
+    err.classList.add('hidden');
+    out.textContent = "กำลังวิเคราะห์…";
+
+    try {
+      const res = await fetch("/api/health/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ free_text: text })
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      out.textContent = data.analysis || "ไม่มีผลลัพธ์";
+    } catch (e) {
+      out.textContent = "";
+      err.textContent = "วิเคราะห์ไม่สำเร็จ: " + e.message;
+      err.classList.remove('hidden');
+    }
+  });
+</script>
+{% endblock %}
