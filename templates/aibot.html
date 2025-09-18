@@ -5,7 +5,7 @@
 <h2 class="text-2xl font-bold mb-4 text-center">แชทกับ AI</h2>
 
 <div class="relative z-0 bg-white shadow rounded-xl p-4 max-w-4xl mx-auto w-full">
-  <div id="chat" class="h-80 overflow-y-auto border rounded p-3 mb-3 bg-gray-50"></div>
+  <div id="chat" class="h-80 overflow-y-auto border rounded p-3 mb-3 bg-gray-50 flex flex-col gap-3"></div>
 
   <form id="chat-form" class="flex items-center gap-3">
     <!-- บังคับขนาดให้ชนะ CSS อื่น ๆ -->
@@ -36,13 +36,63 @@
   const msg  = document.getElementById('msg');
   const err  = document.getElementById('err');
 
-  function addLine(html, who){
+  const avatars = {
+    user: "{{ url_for('static', filename='img/avatar-user.svg') }}",
+    ai: "{{ url_for('static', filename='img/avatar-ai.svg') }}",
+    system: "{{ url_for('static', filename='img/avatar-ai.svg') }}"
+  };
+
+  function createAvatar(who) {
     const wrap = document.createElement('div');
-    wrap.className = `mb-2 ${who === 'ai' ? 'text-blue-700' : ''}`;
-    wrap.innerHTML = html;
-    chat.appendChild(wrap);
+    wrap.className = 'w-10 h-10 rounded-full border-2 border-blue-500 overflow-hidden flex-shrink-0 bg-white flex items-center justify-center';
+
+    const role = who === 'system' ? 'ai' : who;
+    const img = document.createElement('img');
+    img.src = avatars[who] || avatars[role] || avatars.ai;
+    img.alt = role === 'user' ? 'User avatar' : 'AI avatar';
+    img.className = 'w-full h-full object-cover';
+    img.onerror = () => {
+      wrap.innerHTML = '';
+      wrap.classList.add('text-blue-600', 'font-semibold');
+      wrap.textContent = role === 'user' ? 'U' : 'AI';
+      wrap.style.backgroundColor = role === 'user' ? '#1E3A8A' : '#2563EB';
+    };
+
+    wrap.appendChild(img);
+    return wrap;
+  }
+
+  function addMessage(who, text) {
+    const role = who === 'system' ? 'ai' : who;
+
+    const row = document.createElement('div');
+    row.className = 'w-full flex items-end gap-3';
+    row.classList.add(role === 'user' ? 'justify-end' : 'justify-start');
+
+    const bubble = document.createElement('div');
+    bubble.className = 'px-4 py-2 rounded-2xl shadow max-w-[70%] whitespace-pre-wrap leading-relaxed text-white ' +
+      (role === 'user' ? 'bg-blue-800 text-right' : 'bg-blue-500');
+    bubble.textContent = text;
+
+    if (who === 'system') {
+      bubble.classList.add('text-sm', 'italic', 'opacity-90');
+    }
+
+    const avatar = createAvatar(who);
+
+    if (role === 'user') {
+      row.appendChild(bubble);
+      row.appendChild(avatar);
+    } else {
+      row.appendChild(avatar);
+      row.appendChild(bubble);
+    }
+
+    chat.appendChild(row);
     chat.scrollTop = chat.scrollHeight;
   }
+
+  addMessage('system', 'สวัสดีค่ะ! ระบบผู้ช่วยสุขภาพพร้อมตอบคำถามของคุณ เริ่มต้นพิมพ์ข้อความได้เลยนะคะ');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -51,7 +101,7 @@
     msg.value = '';
     err.classList.add('hidden');
 
-    addLine(`<b>คุณ:</b> ${text}`, 'me');
+    addMessage('user', text);
 
     try {
       const res = await fetch('/api/chat', {
@@ -64,7 +114,7 @@
 
       const data = await res.json();
       if (data && data.response) {
-        addLine(`<b>AI:</b> ${data.response}`, 'ai');
+        addMessage('ai', data.response);
       } else {
         throw new Error('ไม่มีฟิลด์ "response"');
       }

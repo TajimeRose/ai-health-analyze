@@ -1,7 +1,12 @@
 from flask import Flask, request, jsonify, render_template
 from openai import OpenAI
 import os
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+from dotenv import load_dotenv
+# โหลดค่า .env ตอนรันในเครื่อง (Render จะไม่เห็นไฟล์นี้ แต่ไม่ error)
+load_dotenv()
+
+# กำหนด API Key จาก Environment Variable
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
