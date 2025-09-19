@@ -1,7 +1,8 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, Blueprint
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
+
 # โหลดค่า .env ตอนรันในเครื่อง (Render จะไม่เห็นไฟล์นี้ แต่ไม่ error)
 load_dotenv()
 
@@ -30,10 +31,7 @@ def aibot():
 
 @app.get("/health")
 def health():
-    # ใช้โหมดพิมพ์อิสระเป็นหลัก
     return render_template("health.html")
-    # ถ้าจะใช้ชิปอาการ:
-    # return render_template("health.html", symptoms=SYMPTOMS)
 
 @app.get("/follow")
 def follow():
@@ -46,6 +44,17 @@ def testresults():
 @app.get("/login")
 def login():
     return render_template("login.html")
+
+# ----------------- AUTH (Blueprint สำหรับ Google Login) -----------------
+auth = Blueprint('auth', __name__)
+
+@auth.route("/login/google")
+def google_login():
+    # TODO: ตรงนี้ใส่โค้ดเรียก OAuth2 ของ Google
+    return "เข้าสู่ระบบด้วย Google (ยังไม่เชื่อม OAuth จริง)"
+
+# ลงทะเบียน blueprint
+app.register_blueprint(auth)
 
 @app.get("/signup")
 def signup():
@@ -109,7 +118,7 @@ def analyze_health():
     """
     data = request.get_json(force=True) or {}
 
-    # ---------- โหมดถามอิสระ (ของเดิม) ----------
+    # ---------- โหมดถามอิสระ ----------
     free_text = (data.get("free_text") or "").strip()
     if free_text:
         system_prompt = (
@@ -131,14 +140,13 @@ def analyze_health():
             return jsonify({"analysis": "ไม่สามารถเรียกใช้ AI ได้: " + str(e), "flags": []})
 
     # ---------- รับค่าจากทั้งโครงสร้างเก่า/ใหม่ ----------
-    # เก่า
     sys_g = data.get("systolic")
     dia_g = data.get("diastolic")
     hr_g  = data.get("heart_rate")
     symptoms_g = data.get("symptoms", []) or []
     extra_notes = (data.get("extra_notes") or "").strip()
 
-    # ใหม่ (อาจส่งมาหรือไม่ก็ได้)
+    # ใหม่
     gender       = data.get("gender")
     height_cm    = data.get("height_cm")
     weight_kg    = data.get("weight_kg")
@@ -150,7 +158,7 @@ def analyze_health():
     heart_rate   = data.get("heart_rate", hr_g)
     blood_sugar  = data.get("blood_sugar")
     temperature  = data.get("temperature_c")
-    bmi          = data.get("bmi")  # ถ้าไม่มีจะคำนวณให้ด้านล่าง
+    bmi          = data.get("bmi")
     symptoms     = data.get("symptoms") or symptoms_g
 
     # ---------- แปลง type และคำนวณ BMI ----------
@@ -179,14 +187,12 @@ def analyze_health():
             flags.append("น้ำตาลสูง (≥180 mg/dL)")
         if bmi is not None and bmi >= 30:
             flags.append("BMI อ้วนระดับ 2 (≥30)")
-        # ตัวอย่าง rule เดิม
         if "เจ็บหน้าอก" in symptoms and ("หายใจลำบาก" in symptoms or "ใจสั่น" in symptoms):
             flags.append("อาการเสี่ยงหัวใจ/ปอด ควรพบแพทย์ทันที")
     except Exception:
         pass
 
     # ---------- รวมข้อความส่งให้ AI ----------
-    # บันทึกข้อมูลครบทุกฟิลด์ (ถ้าว่างจะระบุว่าไม่ระบุ)
     info_lines = [
         f"เพศ: {gender or 'ไม่ระบุ'}",
         f"ส่วนสูง: {height_cm or '-'} ซม., น้ำหนัก: {weight_kg or '-'} กก., BMI: {bmi if bmi is not None else '-'}",
@@ -208,11 +214,11 @@ def analyze_health():
 
     system_prompt = (
         "คุณเป็นผู้ช่วยด้านสุขภาพ (ไม่ใช่แพทย์). "
-        "ให้คุณ: 1) สรุปข้อมูลจากฟอร์ม (อ้างทุกฟิลด์ที่มี), "
-        "2) วิเคราะห์ความเป็นไปได้/ปัจจัยเสี่ยงโดยรวม (รวม BMI, BP, HR, น้ำตาล, อุณหภูมิ, การนอน, พฤติกรรมดื่ม/สูบ), "
-        "3) ให้คำแนะนำเชิงปฏิบัติเป็นข้อ ๆ, "
-        "4) ระบุสัญญาณอันตรายที่ควรไปพบแพทย์ทันที. "
-        "อย่าวินิจฉัยโรคแบบฟันธง. ตอบเป็นภาษาไทย อ่านง่าย เป็นหัวข้อ."
+        "ให้คุณ: 1) สรุปข้อมูลจากฟอร์ม, "
+        "2) วิเคราะห์ความเสี่ยงโดยรวม, "
+        "3) ให้คำแนะนำเป็นข้อ ๆ, "
+        "4) ระบุสัญญาณอันตราย. "
+        "อย่าวินิจฉัยโรคแบบฟันธง. ตอบเป็นภาษาไทย."
     )
     user_prompt = f"ข้อมูลผู้ใช้:\n{info_text}"
 

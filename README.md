@@ -14,6 +14,7 @@ Flask, request, jsonify, render_template ,OpenAI
 	python -m venv .venv
 	pip install -r requirements.txt
 	pip install Flask openai
+	pip install flask-dance
 
 ## วิธีการใช้งาน
 	Python app.py

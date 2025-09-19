@@ -3,31 +3,105 @@
 {% block title %}เข้าสู่ระบบ | AI Health Analyze{% endblock %}
 
 {% block content %}
-<div class="login-container">
-<h2>เข้าสู่ระบบ</h2>
-<form id="loginForm">
-<div class="form-group">
-<label for="userInput">อีเมลหรือรหัสผ่าน</label>
-<input id="userInput" name="userInput" placeholder="กรอกอีเมลหรือรหัสผ่าน" required="" type="text"/>
+<div class="flex min-h-[70vh] items-center justify-center py-12 px-4">
+  <div class="w-full max-w-md overflow-hidden rounded-3xl border border-blue-100 bg-white/95 shadow-2xl">
+    <div class="bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 px-8 py-6 text-white">
+      <p class="text-xs uppercase tracking-[0.35em] text-blue-100">AI Health Analyze</p>
+      <h2 class="mt-2 text-3xl font-semibold">เข้าสู่ระบบ</h2>
+      <p class="mt-1 text-sm text-blue-50/80">จัดการข้อมูลสุขภาพและติดตามผลอย่างต่อเนื่อง</p>
+    </div>
+
+    <div class="px-8 py-8">
+      <form id="loginForm" class="space-y-6">
+        <div>
+          <label for="userInput" class="mb-2 block text-sm font-semibold text-gray-700">อีเมลหรือชื่อผู้ใช้</label>
+          <div class="relative">
+            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-blue-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8l9 6 9-6m-18 8l9 6 9-6M3 8l9-6 9 6" />
+              </svg>
+            </span>
+            <input
+              id="userInput"
+              name="userInput"
+              type="text"
+              required
+              placeholder="กรอกอีเมลหรือชื่อผู้ใช้"
+              class="w-full rounded-2xl border border-blue-100 bg-white px-11 py-3 text-gray-800 shadow-inner shadow-blue-50 transition focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+            />
+          </div>
+        </div>
+
+        <div>
+          <div class="mb-2 flex items-center justify-between text-sm font-semibold text-gray-700">
+            <label for="password">รหัสผ่าน</label>
+            <span class="text-xs font-medium text-blue-500">ปกป้องบัญชีของคุณด้วยรหัสที่เดายาก</span>
+          </div>
+          <div class="relative">
+            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-blue-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 11c-1.654 0-3 1.346-3 3v2h6v-2c0-1.654-1.346-3-3-3zm6-2V7c0-3.309-2.691-6-6-6S6 3.691 6 7v2H4v14h16V9h-2zm-8-2c0-1.654 1.346-3 3-3s3 1.346 3 3v2H10V7z" />
+              </svg>
+            </span>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              placeholder="กรอกรหัสผ่าน"
+              class="w-full rounded-2xl border border-blue-100 bg-white px-11 py-3 text-gray-800 shadow-inner shadow-blue-50 transition focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3 text-base font-semibold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 hover:shadow-xl"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+          เข้าสู่ระบบทันที
+        </button>
+      </form>
+
+      <div class="mt-8 rounded-2xl bg-blue-50/70 p-5 text-sm text-blue-700">
+        <p class="font-semibold">สิทธิประโยชน์สำหรับสมาชิก</p>
+        <ul class="mt-3 space-y-2 text-blue-600">
+          <li class="flex items-start gap-2">
+            <span class="mt-1 h-2 w-2 rounded-full bg-blue-500"></span>
+            วิเคราะห์ข้อมูลสุขภาพด้วยโมเดล AI ล่าสุด
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="mt-1 h-2 w-2 rounded-full bg-blue-500"></span>
+            ติดตามค่าชีวะสัญญาณและผลตรวจแบบเรียลไทม์
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="mt-1 h-2 w-2 rounded-full bg-blue-500"></span>
+            คำแนะนำเฉพาะบุคคลจากผู้ช่วยอัจฉริยะ
+          </li>
+        </ul>
+      </div>
+
+      <p class="mt-8 text-center text-sm text-gray-600">
+        ยังไม่มีบัญชี?
+        <a class="font-semibold text-blue-600 transition hover:text-blue-700" href="{{ url_for('signup') }}">สมัครสมาชิก</a>
+      </p>
+    </div>
+  </div>
 </div>
-<div class="form-group">
-<label for="password">รหัสผ่าน</label>
-<input id="password" name="password" placeholder="กรอกรหัสผ่าน" required="" type="password"/>
-</div>
-<button class="login-btn" type="submit">เข้าสู่ระบบ</button>
-</form>
-<div class="signup-link">
-      ยังไม่มีบัญชี? <a href="signup.html">สมัครสมาชิก</a>
-</div>
-</div>
+
 <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const userInput = document.getElementById('userInput').value.trim();
-      const password = document.getElementById('password').value;
-      // TODO: เชื่อมต่อ backend สำหรับเข้าสู่ระบบ
-      alert('เข้าสู่ระบบสำเร็จ (ตัวอย่าง)');
-      window.location.href = "index.html";
-    });
-  </script>
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const userInput = document.getElementById('userInput').value.trim();
+    const password = document.getElementById('password').value;
+    if (!userInput || !password) {
+      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+      return;
+    }
+    alert('เข้าสู่ระบบสำเร็จ (ตัวอย่าง)');
+    window.location.href = "{{ url_for('home') }}";
+  });
+</script>
 {% endblock %}

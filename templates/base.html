@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}AI Health Analyze{% endblock %}</title>
-    
+  
   <!-- CSS ทั่วไปของทั้งเว็บ (ถ้ามี) -->
   <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}"> -->
   {% block extra_css %}{% endblock %}
@@ -19,6 +19,8 @@
   <main class="container mx-auto px-4 py-6">
     {% block content %}{% endblock %}
   </main>
+  <!-- ใส่ไว้ใน <head> ของ base.html -->
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 </body>
 </html>
