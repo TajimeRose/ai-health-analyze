@@ -15,6 +15,7 @@ Flask, request, jsonify, render_template ,OpenAI
 	pip install -r requirements.txt
 	pip install Flask openai
 	pip install flask-dance
+	pip install python-dotenv
 
 ## วิธีการใช้งาน
 	Python app.py
