@@ -14,7 +14,7 @@
     <div class="px-8 py-8">
       <form id="loginForm" class="space-y-6">
         <div>
-          <label for="userInput" class="mb-2 block text-sm font-semibold text-gray-700">อีเมลหรือชื่อผู้ใช้</label>
+          <label for="loginIdentifier" class="mb-2 block text-sm font-semibold text-gray-700">อีเมลหรือชื่อผู้ใช้</label>
           <div class="relative">
             <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-blue-500">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -22,18 +22,18 @@
               </svg>
             </span>
             <input
-              id="userInput"
-              name="userInput"
+              id="loginIdentifier"
+              name="loginIdentifier"
               type="text"
-              required
               placeholder="กรอกอีเมลหรือชื่อผู้ใช้"
               class="w-full rounded-2xl border border-blue-100 bg-white px-11 py-3 text-gray-800 shadow-inner shadow-blue-50 transition focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
+          <p class="mt-2 text-xs text-blue-500/80">สามารถใช้อีเมลหรือชื่อผู้ใช้เข้าสู่ระบบได้</p>
         </div>
 
         <div>
-          <div class="mb-2 flex items-center justify-between text-sm font-semibold text-gray-700">
+          <div class="mb-2 flex items-center justify-between text-sm软件合法吗 text-gray-700">
             <label for="password">รหัสผ่าน</label>
             <span class="text-xs font-medium text-blue-500">ปกป้องบัญชีของคุณด้วยรหัสที่เดายาก</span>
           </div>
@@ -65,6 +65,10 @@
         </button>
       </form>
 
+      <p class="mt-4 text-center text-xs text-blue-600">
+        <a id="forgotPasswordLink" class="font-semibold hover:underline" href="#">ลืมรหัสผ่าน?</a>
+      </p>
+
       <div class="mt-8 rounded-2xl bg-blue-50/70 p-5 text-sm text-blue-700">
         <p class="font-semibold">สิทธิประโยชน์สำหรับสมาชิก</p>
         <ul class="mt-3 space-y-2 text-blue-600">
@@ -91,17 +95,43 @@
   </div>
 </div>
 
-<script>
-  document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const userInput = document.getElementById('userInput').value.trim();
-    const password = document.getElementById('password').value;
-    if (!userInput || !password) {
-      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+<script type="module">
+  import { loginWithEmail } from "{{ url_for('static', filename='js/register.js') }}";
+  import { toastLoginSuccess, toastLoginError, notifyInfo } from "{{ url_for('static', filename='js/notify.js') }}";
+
+  const form = document.getElementById('loginForm');
+  const identifierEl = document.getElementById('loginIdentifier');
+  const passwordEl = document.getElementById('password');
+  const forgotLink = document.getElementById('forgotPasswordLink');
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const identifier = identifierEl.value.trim();
+    const password = passwordEl.value;
+
+    if (!identifier || !password) {
+      toastLoginError({ code: 'auth/missing-input', message: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
       return;
     }
-    alert('เข้าสู่ระบบสำเร็จ (ตัวอย่าง)');
-    window.location.href = "{{ url_for('home') }}";
+
+    try {
+      const credential = await loginWithEmail(identifier, password);
+      toastLoginSuccess(credential.user, identifier);
+      try { sessionStorage.setItem("aha-login-toast", "1"); } catch (_) {}
+      window.location.href = "{{ url_for('home') }}";
+    } catch (error) {
+      toastLoginError(error);
+    }
   });
+
+  if (forgotLink) {
+    forgotLink.addEventListener('click', (event) => {
+      event.preventDefault();
+      notifyInfo('ลืมรหัสผ่าน?', 'โปรดติดต่อผู้ดูแลระบบเพื่อรีเซ็ตรหัสผ่าน');
+    });
+  }
 </script>
 {% endblock %}
+
+
+

@@ -31,7 +31,26 @@
             </div>
           </div>
 
-          <div class="grid gap-6 md:grid-cols-2">
+          <div>
+            <label for="username" class="mb-2 block text-sm font-semibold text-gray-700">ชื่อผู้ใช้</label>
+            <div class="relative">
+              <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-emerald-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </span>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                placeholder="ตั้งชื่อผู้ใช้สำหรับบัญชีนี้"
+                class="w-full rounded-2xl border border-emerald-100 bg-white px-11 py-3 text-gray-800 shadow-inner shadow-emerald-50 transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              />
+            </div>
+          </div>
+
+          <div class="space-y-6">
             <div>
               <label for="password" class="mb-2 block text-sm font-semibold text-gray-700">รหัสผ่าน</label>
               <div class="relative">
@@ -149,25 +168,66 @@
   </div>
 </div>
 
-<script>
-  document.getElementById('signupForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
+<script type="module">
+  import { signupWithEmail, updateProfileInfo } from "{{ url_for('static', filename='js/register.js') }}";
+  import {
+    toastSignupSuccess,
+    toastSignupError,
+    toastProfileUpdateSuccess,
+    toastProfileUpdateError,
+    toastProfileMissingUser
+  } from "{{ url_for('static', filename='js/notify.js') }}";
 
-    if (!email || !password || !confirmPassword) {
-      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+  const form = document.getElementById('signupForm');
+  const emailEl = document.getElementById('email');
+  const usernameEl = document.getElementById('username');
+  const passwordEl = document.getElementById('password');
+  const confirmPasswordEl = document.getElementById('confirmPassword');
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const email = emailEl.value.trim();
+    const username = usernameEl.value.trim();
+    const password = passwordEl.value;
+    const confirmPassword = confirmPasswordEl.value;
+
+    if (!email || !username || !password || !confirmPassword) {
+      toastSignupError({ code: 'auth/missing-input', message: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
+      return;
+    }
+
+    if (password.length < 6) {
+      toastSignupError({ code: 'auth/weak-password' });
       return;
     }
 
     if (password !== confirmPassword) {
-      alert('รหัสผ่านไม่ตรงกัน');
+      toastSignupError({ code: 'auth/password-mismatch', message: 'กรุณายืนยันรหัสผ่านให้ตรงกัน' });
       return;
     }
 
-    alert('สมัครสมาชิกสำเร็จ (ตัวอย่าง)');
-    window.location.href = "{{ url_for('login') }}";
+    try {
+      const credential = await signupWithEmail(email, password);
+      toastSignupSuccess(credential.user, email);
+
+      try {
+        await updateProfileInfo({ displayName: username });
+        toastProfileUpdateSuccess();
+      } catch (profileError) {
+        if (profileError && profileError.message === 'NO_AUTHENTICATED_USER') {
+          toastProfileMissingUser();
+        } else {
+          toastProfileUpdateError(profileError);
+        }
+      }
+
+      window.location.href = "{{ url_for('home') }}";
+    } catch (error) {
+      toastSignupError(error);
+    }
   });
 </script>
 {% endblock %}
+
+
+
