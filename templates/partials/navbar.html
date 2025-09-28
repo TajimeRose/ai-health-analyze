@@ -31,9 +31,13 @@
       <a href="{{ url_for('testresults') }}" class="hover:text-blue-600">ปรึกษาสุขภาพกับ AI</a>
     </div>
 
-    <div class="hidden md:flex items-center gap-2">
+    <div id="nav-guest-desktop" class="hidden md:flex items-center gap-2">
       <a href="{{ url_for('login') }}"  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">เข้าสู่ระบบ</a>
       <a href="{{ url_for('signup') }}" class="px-4 py-2 bg-gray-100 text-blue-700 rounded-lg hover:bg-gray-200">สมัครสมาชิก</a>
+    </div>
+    <div id="nav-user-desktop" class="hidden md:flex items-center gap-3" style="display: none;">
+      <span id="nav-user-label-desktop" class="max-w-xs truncate px-3 py-2 rounded-lg bg-blue-50 text-sm font-semibold text-blue-700"></span>
+      <button id="nav-logout-desktop" type="button" class="px-3 py-2 text-sm font-medium text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50">ออกจากระบบ</button>
     </div>
   </div>
 
@@ -44,9 +48,15 @@
       <a href="{{ url_for('health') }}"      class="py-2 hover:text-blue-600">วิเคราะห์สุขภาพ AI</a>
       <a href="{{ url_for('follow') }}"      class="py-2 hover:text-blue-600">ติดตามสุขภาพ</a>
       <a href="{{ url_for('testresults') }}" class="py-2 hover:text-blue-600">ปรึกษาสุขภาพกับ AI</a>
-      <div class="pt-2 flex gap-2">
+      <div id="nav-guest-mobile" class="pt-2 flex gap-2">
         <a href="{{ url_for('login') }}"  class="flex-1 text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">เข้าสู่ระบบ</a>
         <a href="{{ url_for('signup') }}" class="flex-1 text-center px-4 py-2 bg-gray-100 text-blue-700 rounded-lg hover:bg-gray-200">สมัครสมาชิก</a>
+      </div>
+      <div id="nav-user-mobile" class="flex flex-col gap-3 pt-2" style="display: none;">
+        <div class="flex items-center justify-between rounded-lg bg-blue-50 px-4 py-2">
+          <span id="nav-user-label-mobile" class="flex-1 truncate pr-4 text-sm font-semibold text-blue-700"></span>
+          <button id="nav-logout-mobile" type="button" class="text-sm font-semibold text-blue-600 hover:text-blue-700">ออกจากระบบ</button>
+        </div>
       </div>
     </div>
   </div>
@@ -81,5 +91,94 @@
         if (window.innerWidth >= 768) setOpen(false);
       });
     })();
+  </script>
+
+  <script type="module">
+    import { observeAuthState, logout } from "{{ url_for('static', filename='js/register.js') }}";
+    import { toastLogoutSuccess, toastLogoutError, toastAuthenticatedInfo } from "{{ url_for('static', filename='js/notify.js') }}";
+
+    const guestDesktop = document.getElementById('nav-guest-desktop');
+    const userDesktop = document.getElementById('nav-user-desktop');
+    const guestMobile = document.getElementById('nav-guest-mobile');
+    const userMobile = document.getElementById('nav-user-mobile');
+    const desktopLabel = document.getElementById('nav-user-label-desktop');
+    const mobileLabel = document.getElementById('nav-user-label-mobile');
+    const logoutDesktop = document.getElementById('nav-logout-desktop');
+    const logoutMobile = document.getElementById('nav-logout-mobile');
+
+    let hasShownLoginToast = false;
+
+    const setDisplay = (el, shouldShow, displayValue) => {
+      if (!el) return;
+      if (shouldShow) {
+        if (displayValue) {
+          el.style.display = displayValue;
+        } else {
+          el.style.removeProperty('display');
+        }
+      } else {
+        el.style.display = 'none';
+      }
+    };
+
+    const setUserText = (text) => {
+      [desktopLabel, mobileLabel].forEach((el) => {
+        if (!el) return;
+        el.textContent = text;
+        el.title = text;
+      });
+    };
+
+    observeAuthState((user) => {
+      const isLoggedIn = Boolean(user);
+      const displayName = user && typeof user.displayName === 'string' ? user.displayName.trim() : '';
+      const candidate = displayName || (user && user.email) || '';
+      const label = candidate || 'บัญชีของฉัน';
+
+      setDisplay(guestDesktop, !isLoggedIn);
+      setDisplay(guestMobile, !isLoggedIn);
+      setDisplay(userDesktop, isLoggedIn);
+      setDisplay(userMobile, isLoggedIn, 'flex');
+      setUserText(label);
+
+      if (isLoggedIn && !hasShownLoginToast) {
+        const marker = (() => {
+          try {
+            const flag = sessionStorage.getItem('aha-login-toast');
+            if (flag) {
+              sessionStorage.removeItem('aha-login-toast');
+              return true;
+            }
+          } catch (_) {
+            // ignore storage errors
+          }
+          return false;
+        })();
+
+        if (!marker) {
+          toastAuthenticatedInfo(user);
+        }
+        hasShownLoginToast = true;
+      }
+      if (!isLoggedIn) {
+        hasShownLoginToast = false;
+      }
+    });
+
+    const handleLogout = async (event) => {
+      event.preventDefault();
+      try {
+        await logout();
+        toastLogoutSuccess();
+      } catch (error) {
+        console.error('Failed to log out', error);
+        toastLogoutError(error);
+      }
+    };
+
+    [logoutDesktop, logoutMobile].forEach((btn) => {
+      if (!btn) return;
+      btn.addEventListener('click', handleLogout);
+    });
   </script>
 </nav>

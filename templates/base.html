@@ -9,6 +9,9 @@
   {% block extra_css %}{% endblock %}
 
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/firebase-config.js"></script>
+  <script type="module" src="{{ url_for('static', filename='js/register.js') }}"></script>
+
 </head>
 <body class="min-h-screen bg-blue-50">   <!-- ฟ้าอ่อนทั้งหน้า -->
 
@@ -21,6 +24,5 @@
   </main>
   <!-- ใส่ไว้ใน <head> ของ base.html -->
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-
 </body>
 </html>

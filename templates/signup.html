@@ -15,30 +15,58 @@
             <label for="email" class="mb-2 block text-sm font-semibold text-gray-700">อีเมล</label>
             <div class="relative">
               <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-emerald-500">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 4h16v16H4z" />
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 8l8 5 8-5" />
                 </svg>
               </span>
-              <input id="email" name="email" type="email" required placeholder="กรอกอีเมลที่ใช้งานจริง"
-                class="w-full rounded-2xl border border-emerald-100 bg-white px-11 py-3 text-gray-800 shadow-inner shadow-emerald-50 transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                placeholder="กรอกอีเมลที่ใช้งานจริง"
+                class="w-full rounded-2xl border border-emerald-100 bg-white px-11 py-3 text-gray-800 shadow-inner shadow-emerald-50 transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              />
             </div>
           </div>
 
-          <div class="grid gap-6 md:grid-cols-2">
+          <div>
+            <label for="username" class="mb-2 block text-sm font-semibold text-gray-700">ชื่อผู้ใช้</label>
+            <div class="relative">
+              <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-emerald-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </span>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                placeholder="ตั้งชื่อผู้ใช้สำหรับบัญชีนี้"
+                class="w-full rounded-2xl border border-emerald-100 bg-white px-11 py-3 text-gray-800 shadow-inner shadow-emerald-50 transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              />
+            </div>
+          </div>
+
+          <div class="space-y-6">
             <div>
               <label for="password" class="mb-2 block text-sm font-semibold text-gray-700">รหัสผ่าน</label>
               <div class="relative">
                 <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-emerald-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                      d="M12 11c-1.654 0-3 1.346-3 3v2h6v-2c0-1.654-1.346-3-3-3zm6-2V7c0-3.309-2.691-6-6-6S6 3.691 6 7v2H4v14h16V9h-2zm-8-2c0-1.654 1.346-3 3-3s3 1.346 3 3v2H10V7z" />
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 11c-1.654 0-3 1.346-3 3v2h6v-2c0-1.654-1.346-3-3-3zm6-2V7c0-3.309-2.691-6-6-6S6 3.691 6 7v2H4v14h16V9h-2zm-8-2c0-1.654 1.346-3 3-3s3 1.346 3 3v2H10V7z" />
                   </svg>
                 </span>
-                <input id="password" name="password" type="password" required placeholder="สร้างรหัสผ่าน"
-                  class="w-full rounded-2xl border border-emerald-100 bg-white px-11 py-3 text-gray-800 shadow-inner shadow-emerald-50 transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  placeholder="สร้างรหัสผ่าน"
+                  class="w-full rounded-2xl border border-emerald-100 bg-white px-11 py-3 text-gray-800 shadow-inner shadow-emerald-50 transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                />
               </div>
             </div>
 
@@ -46,16 +74,19 @@
               <label for="confirmPassword" class="mb-2 block text-sm font-semibold text-gray-700">ยืนยันรหัสผ่าน</label>
               <div class="relative">
                 <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-emerald-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4" />
-                    <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                      fill="none" />
+                    <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" fill="none" />
                   </svg>
                 </span>
-                <input id="confirmPassword" name="confirmPassword" type="password" required
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  required
                   placeholder="พิมพ์รหัสผ่านอีกครั้ง"
-                  class="w-full rounded-2xl border border-emerald-100 bg-white px-11 py-3 text-gray-800 shadow-inner shadow-emerald-50 transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
+                  class="w-full rounded-2xl border border-emerald-100 bg-white px-11 py-3 text-gray-800 shadow-inner shadow-emerald-50 transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                />
               </div>
             </div>
           </div>
@@ -78,10 +109,11 @@
             </ul>
           </div>
 
-          <button type="submit"
-            class="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 py-3 text-base font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-600 hover:shadow-xl">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
+          <button
+            type="submit"
+            class="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 py-3 text-base font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-600 hover:shadow-xl"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 5v14m7-7H5" />
             </svg>
             สมัครสมาชิก
@@ -90,13 +122,11 @@
 
         <p class="mt-8 text-center text-sm text-gray-600">
           มีบัญชีแล้ว?
-          <a href="{{ url_for('login') }}"
-            class="font-semibold text-emerald-600 transition hover:text-emerald-700">เข้าสู่ระบบ</a>
+          <a href="{{ url_for('login') }}" class="font-semibold text-emerald-600 transition hover:text-emerald-700">เข้าสู่ระบบ</a>
         </p>
       </div>
 
-      <div
-        class="hidden flex-col justify-between bg-gradient-to-br from-emerald-500 via-teal-500 to-sky-500 px-8 py-10 text-white md:flex">
+      <div class="hidden flex-col justify-between bg-gradient-to-br from-emerald-500 via-teal-500 to-sky-500 px-8 py-10 text-white md:flex">
         <div>
           <h3 class="text-2xl font-semibold">ดูแลสุขภาพแบบบูรณาการ</h3>
           <p class="mt-4 text-sm text-emerald-50/90">
@@ -106,8 +136,7 @@
         <ul class="space-y-4 text-sm">
           <li class="flex items-start gap-3">
             <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/20">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4" />
               </svg>
             </span>
@@ -115,8 +144,7 @@
           </li>
           <li class="flex items-start gap-3">
             <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/20">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 16h-1v-4h-1m1-4h.01" />
               </svg>
             </span>
@@ -124,10 +152,8 @@
           </li>
           <li class="flex items-start gap-3">
             <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/20">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                  d="M3 7l9 6 9-6-9-6-9 6zm0 6l9 6 9-6" />
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7l9 6 9-6-9-6-9 6zm0 6l9 6 9-6" />
               </svg>
             </span>
             รองรับการอัปโหลดผลตรวจจากหลายระบบเพื่อให้เห็นภาพรวมชัดเจน
@@ -142,25 +168,66 @@
   </div>
 </div>
 
-<script>
-  document.getElementById('signupForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
+<script type="module">
+  import { signupWithEmail, updateProfileInfo } from "{{ url_for('static', filename='js/register.js') }}";
+  import {
+    toastSignupSuccess,
+    toastSignupError,
+    toastProfileUpdateSuccess,
+    toastProfileUpdateError,
+    toastProfileMissingUser
+  } from "{{ url_for('static', filename='js/notify.js') }}";
 
-    if (!email || !password || !confirmPassword) {
-      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+  const form = document.getElementById('signupForm');
+  const emailEl = document.getElementById('email');
+  const usernameEl = document.getElementById('username');
+  const passwordEl = document.getElementById('password');
+  const confirmPasswordEl = document.getElementById('confirmPassword');
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const email = emailEl.value.trim();
+    const username = usernameEl.value.trim();
+    const password = passwordEl.value;
+    const confirmPassword = confirmPasswordEl.value;
+
+    if (!email || !username || !password || !confirmPassword) {
+      toastSignupError({ code: 'auth/missing-input', message: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
+      return;
+    }
+
+    if (password.length < 6) {
+      toastSignupError({ code: 'auth/weak-password' });
       return;
     }
 
     if (password !== confirmPassword) {
-      alert('รหัสผ่านไม่ตรงกัน');
+      toastSignupError({ code: 'auth/password-mismatch', message: 'กรุณายืนยันรหัสผ่านให้ตรงกัน' });
       return;
     }
 
-    alert('สมัครสมาชิกสำเร็จ (ตัวอย่าง)');
-    window.location.href = "{{ url_for('login') }}";
+    try {
+      const credential = await signupWithEmail(email, password);
+      toastSignupSuccess(credential.user, email);
+
+      try {
+        await updateProfileInfo({ displayName: username });
+        toastProfileUpdateSuccess();
+      } catch (profileError) {
+        if (profileError && profileError.message === 'NO_AUTHENTICATED_USER') {
+          toastProfileMissingUser();
+        } else {
+          toastProfileUpdateError(profileError);
+        }
+      }
+
+      window.location.href = "{{ url_for('home') }}";
+    } catch (error) {
+      toastSignupError(error);
+    }
   });
 </script>
 {% endblock %}
+
+
+

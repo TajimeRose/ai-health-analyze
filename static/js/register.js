@@ -1,17 +1,41 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+  updateProfile
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyAIMvn1MWWUzNNr28Jy9ngf-yG4DElViiA",
-    authDomain: "login-aha-7e4ce.firebaseapp.com",
-    projectId: "login-aha-7e4ce",
-    storageBucket: "login-aha-7e4ce.firebasestorage.app",
-    messagingSenderId: "427985327773",
-    appId: "1:427985327773:web:e25560e962d7f788396674"
-};
+if (!window.FIREBASE_CONFIG) {
+  console.error('FIREBASE_CONFIG not found. Did /firebase-config.js load?');
+  throw new Error('Firebase config missing');
+}
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(window.FIREBASE_CONFIG);
+export const auth = getAuth(app);
+
+export function loginWithEmail(identifier, password) {
+  return signInWithEmailAndPassword(auth, identifier.trim(), password);
+}
+
+export function signupWithEmail(email, password) {
+  return createUserWithEmailAndPassword(auth, email.trim(), password);
+}
+
+export function observeAuthState(callback) {
+  return onAuthStateChanged(auth, callback);
+}
+
+export function logout() {
+  return signOut(auth);
+}
+
+export function updateProfileInfo(profile) {
+  const user = auth.currentUser;
+  if (!user) {
+    return Promise.reject(new Error('NO_AUTHENTICATED_USER'));
+  }
+  return updateProfile(user, profile);
+}

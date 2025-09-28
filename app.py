@@ -9,6 +9,7 @@ load_dotenv()
 # กำหนด API Key จาก Environment Variable
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
+
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
 # --- SYMPTOMS (เก็บไว้เผื่อใช้งานในอนาคต) ---
@@ -18,6 +19,9 @@ SYMPTOMS = [
     "ท้องเสีย","คลื่นไส้อาเจียน","ง่วงนอน","ใจสั่น","บวม","แดง","ระคายเคือง","จุกเสียดหน้าอก",
     "เวียนหัว","ไวต่อแสง","ปวดท้องมาก","ตาพร่ามัว","ไม่สบายตัว"
 ]
+
+
+
 print(">>> SYMPTOMS loaded:", len(SYMPTOMS))
 
 # ----------------- ROUTES -----------------
@@ -241,3 +245,4 @@ def analyze_health():
 # ----------------- RUN -----------------
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)
+
