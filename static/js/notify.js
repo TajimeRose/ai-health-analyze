@@ -38,7 +38,8 @@ const AUTH_ERROR_MESSAGES = {
   "auth/operation-not-allowed": "วิธีการนี้ยังไม่เปิดใช้งาน",
   "auth/popup-closed-by-user": "คุณปิดหน้าต่างก่อนดำเนินการเสร็จ",
   "auth/requires-recent-login": "กรุณาเข้าสู่ระบบอีกครั้งเพื่อดำเนินการ",
-  "auth/credential-already-in-use": "บัญชีนี้เชื่อมโยงกับบริการอื่นแล้ว"
+  "auth/credential-already-in-use": "บัญชีนี้เชื่อมโยงกับบริการอื่นแล้ว",
+  "app/missing-firebase-config": "ระบบยังไม่ได้ตั้งค่าการเชื่อมต่อกับ Firebase",
 };
 
 const DEFAULT_AUTH_ERROR = "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ";

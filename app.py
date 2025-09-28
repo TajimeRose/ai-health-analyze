@@ -1,6 +1,7 @@
-from flask import Flask, request, jsonify, render_template, Blueprint
+from flask import Flask, request, jsonify, render_template, Blueprint, Response
 from openai import OpenAI
 import os
+import json
 from dotenv import load_dotenv
 
 # โหลดค่า .env ตอนรันในเครื่อง (Render จะไม่เห็นไฟล์นี้ แต่ไม่ error)
@@ -60,9 +61,46 @@ def google_login():
 # ลงทะเบียน blueprint
 app.register_blueprint(auth)
 
+@app.get("/firebase-config.js")
+def firebase_config_js():
+    config_map = [
+        ("apiKey", "FIREBASE_API_KEY"),
+        ("authDomain", "FIREBASE_AUTH_DOMAIN"),
+        ("projectId", "FIREBASE_PROJECT_ID"),
+        ("storageBucket", "FIREBASE_STORAGE_BUCKET"),
+        ("messagingSenderId", "FIREBASE_MESSAGING_SENDER_ID"),
+        ("appId", "FIREBASE_APP_ID"),
+    ]
+
+    config = {}
+    missing = []
+    for js_key, env_key in config_map:
+        value = os.environ.get(env_key)
+        if value is None:
+            missing.append(env_key)
+            continue
+        value_stripped = value.strip()
+        if not value_stripped:
+            missing.append(env_key)
+            continue
+        config[js_key] = value_stripped
+
+    if missing:
+        joined = ", ".join(missing)
+        body = f"console.error('Missing Firebase config env vars: {joined}');"
+        response = Response(body, status=500, mimetype="application/javascript")
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+    body = "window.FIREBASE_CONFIG = " + json.dumps(config) + ";"
+    response = Response(body, mimetype="application/javascript")
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
 @app.get("/signup")
 def signup():
     return render_template("signup.html")
+
 
 
 # ----------------- API: Chat Bot (หน้า aibot) -----------------
