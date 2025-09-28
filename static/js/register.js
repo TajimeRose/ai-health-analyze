@@ -1,4 +1,4 @@
-﻿import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -8,53 +8,33 @@ import {
   updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
-let firebaseApp;
-let firebaseAuth;
-
-function ensureFirebaseAuth() {
-  const config = window.FIREBASE_CONFIG;
-  if (!config || typeof config !== 'object') {
-    const error = new Error('Firebase configuration missing');
-    error.code = 'app/missing-firebase-config';
-    throw error;
-  }
-
-  if (!firebaseApp) {
-    firebaseApp = initializeApp(config);
-  }
-
-  if (!firebaseAuth) {
-    firebaseAuth = getAuth(firebaseApp);
-  }
-
-  return firebaseAuth;
+if (!window.FIREBASE_CONFIG) {
+  throw new Error("Firebase config not found. Load /firebase-config.js first.");
 }
 
+const app = initializeApp(window.FIREBASE_CONFIG);
+export const auth = getAuth(app);
+
 export function loginWithEmail(identifier, password) {
-  return signInWithEmailAndPassword(ensureFirebaseAuth(), identifier.trim(), password);
+  return signInWithEmailAndPassword(auth, identifier.trim(), password);
 }
 
 export function signupWithEmail(email, password) {
-  return createUserWithEmailAndPassword(ensureFirebaseAuth(), email.trim(), password);
+  return createUserWithEmailAndPassword(auth, email.trim(), password);
 }
 
 export function observeAuthState(callback) {
-  return onAuthStateChanged(ensureFirebaseAuth(), callback);
+  return onAuthStateChanged(auth, callback);
 }
 
 export function logout() {
-  return signOut(ensureFirebaseAuth());
+  return signOut(auth);
 }
 
 export function updateProfileInfo(profile) {
-  const auth = ensureFirebaseAuth();
   const user = auth.currentUser;
   if (!user) {
     return Promise.reject(new Error('NO_AUTHENTICATED_USER'));
   }
   return updateProfile(user, profile);
-}
-
-export function getFirebaseAuth() {
-  return ensureFirebaseAuth();
 }

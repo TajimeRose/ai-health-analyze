@@ -87,14 +87,14 @@ def firebase_config_js():
 
     if missing:
         joined = ", ".join(missing)
-        body = f"console.error('Missing Firebase config env vars: {joined}');"
-        response = Response(body, status=500, mimetype="application/javascript")
-        response.headers["Cache-Control"] = "no-store"
+        body = f'console.error("Missing Firebase config env vars: {joined}");'
+        response = Response(body, mimetype="application/javascript")
+        response.headers["Cache-Control"] = "no-store, max-age=0"
         return response
 
     body = "window.FIREBASE_CONFIG = " + json.dumps(config) + ";"
     response = Response(body, mimetype="application/javascript")
-    response.headers["Cache-Control"] = "no-store"
+    response.headers["Cache-Control"] = "no-store, max-age=0"
     return response
 
 @app.get("/signup")
